@@ -88,44 +88,47 @@ if (tentContainer) {
 
     // --- 核心功能 1：生成食物 ---
     inventoryFood.addEventListener('click', function(event) {
-        if (event.target.classList.contains('food-emoji-source')) {
-            // 修改：使用我们的新函数来播放音效的前1秒
-            playAudioSegment(spawnSound, 0, 1); // 从第0秒开始，播放1秒
+    if (event.target.classList.contains('food-emoji-source')) {
+        // 正确：现在“生成”时，播放简单的 spawnSound
+        spawnSound.currentTime = 0;
+        spawnSound.play();
 
-            const foodSrc = event.target.src;
-            const newEmoji = document.createElement('img');
-            newEmoji.src = foodSrc;
-            newEmoji.className = 'eatable-emoji';
-            // (生成Emoji的其余代码不变...)
-            const maxX = tentContainer.clientWidth - 50;
-            const maxY = tentContainer.clientHeight - 250;
-            newEmoji.style.left = `${Math.random() * maxX}px`;
-            newEmoji.style.top = `${Math.random() * maxY}px`;
-            newEmoji.addEventListener('click', function() {
-                eatingSound.currentTime = 0;
-                eatingSound.play();
-                newEmoji.style.opacity = '0';
-                newEmoji.style.transform = 'scale(0.5)';
-                setTimeout(() => { newEmoji.remove(); }, 300);
-            });
-            tentContainer.appendChild(newEmoji);
-        }
-    });
+        const foodSrc = event.target.src;
+        const newEmoji = document.createElement('img');
+        newEmoji.src = foodSrc;
+        newEmoji.className = 'eatable-emoji';
+        
+        const maxX = tentContainer.clientWidth - 50;
+        const maxY = tentContainer.clientHeight - 250;
+        newEmoji.style.left = `${Math.random() * maxX}px`;
+        newEmoji.style.top = `${Math.random() * maxY}px`;
 
-    // --- 核心功能 2：一口气吃掉所有食物 ---
-    eatAllBtn.addEventListener('click', function() { /* ... (这部分不变) ... */ });
-    eatAllBtn.addEventListener('click', function() {
-        const allEatableEmojis = document.querySelectorAll('.eatable-emoji');
-        if (allEatableEmojis.length > 0) {
-            eatingSound.currentTime = 0;
-            eatingSound.play();
-            allEatableEmojis.forEach(emoji => {
-                emoji.style.opacity = '0';
-                emoji.style.transform = 'scale(0.5)';
-                setTimeout(() => { emoji.remove(); }, 300);
-            });
-        }
-    });
+        newEmoji.addEventListener('click', function() {
+            // 正确：现在“吃掉”时，播放需要被截取前1秒的 eatingSound
+            playAudioSegment(eatingSound, 0, 1); 
+            
+            newEmoji.style.opacity = '0';
+            newEmoji.style.transform = 'scale(0.5)';
+            setTimeout(() => { newEmoji.remove(); }, 300);
+        });
+        tentContainer.appendChild(newEmoji);
+    }
+});
+
+// --- 核心功能 2：一口气吃掉所有食物 ---
+eatAllBtn.addEventListener('click', function() {
+    const allEatableEmojis = document.querySelectorAll('.eatable-emoji');
+    if (allEatableEmojis.length > 0) {
+        // 正确：“一口气吃掉”时，也播放需要被截取前1秒的 eatingSound
+        playAudioSegment(eatingSound, 0, 1);
+
+        allEatableEmojis.forEach(emoji => {
+            emoji.style.opacity = '0';
+            emoji.style.transform = 'scale(0.5)';
+            setTimeout(() => { emoji.remove(); }, 300);
+        });
+    }
+});
 
     // --- 状态管理 & 交互事件 ---
 let isFireLit = localStorage.getItem('isFireLit') === 'true';
