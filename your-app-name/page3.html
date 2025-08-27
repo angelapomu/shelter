@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的帐篷</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 使用新的背景图作为独立的<img>层 -->
+    <div id="tent-container" class="app-container">
+        <img id="tent-background" src="images/tent-dark-bg.png" class="background-image-layer" alt="tent interior">
+
+        <!-- 新增：顶部图标栏 -->
+        <div class="top-icons-container">
+            <a href="page5.html"><img src="images/icon-add-task.png" alt="下一步行动" class="top-icon"></a>
+            <a id="chat-link" href="page4.html"><img src="images/icon-chat.png" alt="聊天" class="top-icon"></a>
+        </div>
+
+        <!-- 新增：底部物品栏 -->
+        <div class="inventory-bar">
+            <div class="tabs">
+                <div id="tab-equipment" class="tab-item active">装备</div>
+                <div id="tab-food" class="tab-item">食物</div>
+            </div>
+            <div id="inventory-equipment" class="inventory-content visible">
+                <img id="item-wood" src="images/icon-wood.png" alt="木头" class="inventory-icon">
+                <img id="item-chair" src="images/icon-chair.png" alt="椅子" class="inventory-icon">
+            </div>
+            <div id="inventory-food" class="inventory-content">
+    <!-- 食物Emoji来自Twemoji CDN，你可以复制粘贴<img>来添加更多 -->
+    <img src="https://twemoji.maxcdn.com/v/latest/72x72/1f355.png" alt="披萨" class="inventory-icon food-emoji-source">
+    <img src="https://twemoji.maxcdn.com/v/latest/72x72/1f369.png" alt="甜甜圈" class="inventory-icon food-emoji-source">
+    <img src="https://twemoji.maxcdn.com/v/latest/72x72/1f34e.png" alt="苹果" class="inventory-icon food-emoji-source">
+    <img src="https://twemoji.maxcdn.com/v/latest/72x72/1f964.png" alt="饮料" class="inventory-icon food-emoji-source">
+    <!-- 确保按钮在这里，在所有<img>的后面，但在</div>的前面 -->
+                <button id="eat-all-btn" class="inventory-button">一口气吃掉！</button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+
+    <!-- 音效元素 -->
+    <audio id="wind-muffled-sound" loop>
+        <source src="audio/wind-muffled.wav" type="audio/wav">
+    </audio>
+    <audio id="fire-start-sound">
+        <source src="audio/fire-start-sound.wav" type="audio/wav">
+    </audio>
+    <audio id="fire-loop-sound" loop>
+        <source src="audio/fire-loop.m4a" type="audio/mp4">
+    </audio>
+    <audio id="eating-sound">
+    <source src="audio/eating-sound.wav" type="audio/wav"> <!-- 确保文件名和格式正确 -->
+    </audio>
+    <audio id="spawn-sound">
+    <source src="audio/spawn-sound.mp3" type="audio/mpeg"> <!-- 确保文件名和格式正确 -->
+    </audio>
+    <script src="js/main.js"></script>
+</body>
+</html>

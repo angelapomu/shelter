@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的日记</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 新的聊天界面布局 -->
+        <div class="chat-ui-container">
+            <!-- 1. 头部 -->
+            <div class="chat-header-p4">
+                <a href="page3.html" class="chat-header-icon back-arrow-p4">←</a>
+                <span class="chat-header-title">my tent</span>
+                <div class="chat-header-icon"></div>
+            </div>
+
+            <!-- 2. 聊天消息区域 -->
+            <div id="chat-messages-p4" class="chat-messages-p4">
+                <!-- 消息和日期会由JS动态添加 -->
+            </div>
+
+            <!-- 3. 底部输入栏 -->
+            <div class="chat-input-area-p4">
+                <a href="page5.html" class="add-button-p4">+</a>
+                <input type="text" id="chat-input-p4" class="chat-input-p4" placeholder="输入消息...">
+                <button id="send-button-p4" class="send-button-p4">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 火焰循环音效，用于实现无缝播放 -->
+    <audio id="fire-loop-sound" loop>
+        <source src="audio/fire-loop.m4a" type="audio/mp4">
+    </audio>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>

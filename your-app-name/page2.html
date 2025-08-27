@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>埃菲尔铁塔顶</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 修改：给容器加上 id="page2-container"，并使用新的背景图 -->
+    <div id="page2-container" class="app-container" style="background-image: url('images/page2-new-bg.png');">
+        
+        <!-- 新增：三个隐藏的文本元素 -->
+        <div id="text-1" class="overlay-text">
+            ~这里是埃菲尔铁塔顶~<br>
+            距地面984米<br>
+            你辛苦爬上来，<br>
+            在这里扎了帐篷
+        </div>
+
+        <div id="text-2" class="overlay-text">
+            路过的鸟觉得你<br>
+            很奇怪
+        </div>
+
+        <div id="text-3" class="overlay-text">
+            这里风很大，<br>
+            有点冷。<br>
+            要不要生个火？
+        </div>
+
+        <!-- 新增：隐藏的“进入帐篷”按钮 -->
+        <a href="page3.html" id="enter-tent-btn-p2" class="button overlay-button">进入帐篷！</a>
+
+    </div>
+
+    <!-- 风声音效 -->
+    <audio id="wind-sound">
+        <source src="audio/wind.wav" type="audio/wav">
+    </audio>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

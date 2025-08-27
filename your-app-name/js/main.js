@@ -1,0 +1,400 @@
+document.addEventListener('DOMContentLoaded', function() {
+
+    // --- Page 1 Logic: Navigation & Data Persistence ---
+    const goToStepBtn = document.getElementById('go-to-step-btn');
+    if (goToStepBtn) { // This confirms we are on Page 1
+        const goToTentBtn = document.getElementById('go-to-tent-btn');
+        const procrastinationInput = document.getElementById('procrastination-input');
+        const thoughtsInput = document.getElementById('thoughts-input');
+        function savePage1Inputs() { localStorage.setItem('procrastinationText', procrastinationInput.value); localStorage.setItem('thoughtsText', thoughtsInput.value); }
+        function loadPage1Inputs() { procrastinationInput.value = localStorage.getItem('procrastinationText') || ''; thoughtsInput.value = localStorage.getItem('thoughtsText') || ''; }
+        const plusIconLink = document.querySelector('.plus-icon');
+        if(plusIconLink) { plusIconLink.addEventListener('click', savePage1Inputs); }
+        goToStepBtn.addEventListener('click', () => { savePage1Inputs(); window.location.href = 'page5.html'; });
+        goToTentBtn.addEventListener('click', () => { savePage1Inputs(); localStorage.setItem('isFireLit', 'false'); localStorage.setItem('isChairPlaced', 'false'); window.location.href = 'page2.html'; });
+        loadPage1Inputs();
+    }
+
+    // --- Page 2 Logic: Sequential Text Reveal ---
+    const page2Container = document.getElementById('page2-container');
+    if (page2Container) {
+        const text1 = document.getElementById('text-1');
+        const text2 = document.getElementById('text-2');
+        const text3 = document.getElementById('text-3');
+        const enterTentBtn = document.getElementById('enter-tent-btn-p2');
+        const windSound = document.getElementById('wind-sound');
+        
+        let clickStep = 0;
+
+        page2Container.addEventListener('click', function(event) {
+            // 防止点击按钮时，也触发背景的点击事件
+            if (event.target.id === 'enter-tent-btn-p2') {
+                return;
+            }
+            clickStep++;
+            switch (clickStep) {
+                case 1:
+                    text1.classList.add('visible');
+                    windSound.play().catch(e => console.error("Wind sound failed:", e));
+                    break;
+                case 2:
+                    text2.classList.add('visible');
+                    break;
+                case 3:
+                    text3.classList.add('visible');
+                    enterTentBtn.classList.add('visible');
+                    break;
+            }
+        });
+    }
+
+    // --- Page 3 Logic: New Tent Interaction ---
+const tentContainer = document.getElementById('tent-container');
+if (tentContainer) {
+    // --- 获取元素 ---
+    const spawnSound = document.getElementById('spawn-sound');
+    // (其他元素获取...)
+    const eatingSound = document.getElementById('eating-sound');
+    const inventoryFood = document.getElementById('inventory-food');
+    const eatAllBtn = document.getElementById('eat-all-btn');
+    const fireStartSound = document.getElementById('fire-start-sound');
+    const fireLoopSound = document.getElementById('fire-loop-sound');
+    const woodItem = document.getElementById('item-wood');
+    const chairItem = document.getElementById('item-chair');
+    const tentBackground = document.getElementById('tent-background');
+    const chatLink = document.getElementById('chat-link');
+    const windMuffledSound = document.getElementById('wind-muffled-sound');
+    
+    // --- 新增：一个可以播放音频片段的函数 ---
+    /**
+     * 播放一个音频元素的一部分。
+     * @param {HTMLAudioElement} audioElement - 要播放的<audio>元素。
+     * @param {number} startTime - 开始播放的时间点（秒）。
+     * @param {number} duration - 要播放的时长（秒）。
+     */
+    function playAudioSegment(audioElement, startTime, duration) {
+        audioElement.currentTime = startTime; // 1. 把播放头跳到开始位置
+        audioElement.play(); // 2. 开始播放
+
+        // 3. 设置一个定时器，在指定的时长后停止播放
+        setTimeout(() => {
+            audioElement.pause(); // 暂停播放
+        }, duration * 1000); // duration是秒，setTimeout需要毫秒
+    }
+
+    // --- 声音控制 ---
+    windMuffledSound.volume = 0.1;
+    windMuffledSound.play().catch(e => {});
+
+    // --- 核心功能 1：生成食物 ---
+    inventoryFood.addEventListener('click', function(event) {
+        if (event.target.classList.contains('food-emoji-source')) {
+            // 修改：使用我们的新函数来播放音效的前1秒
+            playAudioSegment(spawnSound, 0, 1); // 从第0秒开始，播放1秒
+
+            const foodSrc = event.target.src;
+            const newEmoji = document.createElement('img');
+            newEmoji.src = foodSrc;
+            newEmoji.className = 'eatable-emoji';
+            // (生成Emoji的其余代码不变...)
+            const maxX = tentContainer.clientWidth - 50;
+            const maxY = tentContainer.clientHeight - 250;
+            newEmoji.style.left = `${Math.random() * maxX}px`;
+            newEmoji.style.top = `${Math.random() * maxY}px`;
+            newEmoji.addEventListener('click', function() {
+                eatingSound.currentTime = 0;
+                eatingSound.play();
+                newEmoji.style.opacity = '0';
+                newEmoji.style.transform = 'scale(0.5)';
+                setTimeout(() => { newEmoji.remove(); }, 300);
+            });
+            tentContainer.appendChild(newEmoji);
+        }
+    });
+
+    // --- 核心功能 2：一口气吃掉所有食物 ---
+    eatAllBtn.addEventListener('click', function() { /* ... (这部分不变) ... */ });
+    eatAllBtn.addEventListener('click', function() {
+        const allEatableEmojis = document.querySelectorAll('.eatable-emoji');
+        if (allEatableEmojis.length > 0) {
+            eatingSound.currentTime = 0;
+            eatingSound.play();
+            allEatableEmojis.forEach(emoji => {
+                emoji.style.opacity = '0';
+                emoji.style.transform = 'scale(0.5)';
+                setTimeout(() => { emoji.remove(); }, 300);
+            });
+        }
+    });
+
+    // --- 状态管理 & 交互事件 ---
+let isFireLit = localStorage.getItem('isFireLit') === 'true';
+let isChairPlaced = localStorage.getItem('isChairPlaced') === 'true';
+
+// 唯一的、正确的 updateTentVisuals 函数
+function updateTentVisuals() {
+    // 目标1：修复图片切换逻辑
+    if (isFireLit && isChairPlaced) {
+        tentBackground.src = 'images/tent-fire-chair.png';
+    } else if (isFireLit) {
+        tentBackground.src = 'images/tent-light-bg.png';
+    } else if (isChairPlaced) {
+        tentBackground.src = 'images/tent-dark-chair.png';
+    } else {
+        tentBackground.src = 'images/tent-dark-bg.png';
+    }
+    
+    // 目标2：木柴图标永不消失 (不再控制 woodItem 的显示)
+    chairItem.style.display = isChairPlaced ? 'none' : 'block';
+    
+    if (isFireLit) {
+        fireLoopSound.volume = 0.3;
+        fireLoopSound.play();
+    } else {
+        fireLoopSound.pause();
+    }
+}
+
+// 唯一的、正确的 woodItem 点击事件 (目标2：实现无限点击)
+woodItem.addEventListener('click', () => {
+    isFireLit = true; 
+    localStorage.setItem('isFireLit', 'true');
+    fireStartSound.currentTime = 0;
+    fireStartSound.play();
+    updateTentVisuals();
+});
+
+// 唯一的、正确的 chairItem 点击事件
+chairItem.addEventListener('click', () => {
+    if (!isChairPlaced) {
+        isChairPlaced = true;
+        localStorage.setItem('isChairPlaced', 'true');
+        updateTentVisuals();
+    }
+});
+
+// 唯一的、正确的 Tab 切换逻辑
+const tabEquipment = document.getElementById('tab-equipment');
+const tabFood = document.getElementById('tab-food');
+if(tabEquipment && tabFood){
+     const inventoryEquipment = document.getElementById('inventory-equipment');
+     tabEquipment.addEventListener('click', () => { 
+         tabEquipment.classList.add('active'); 
+         tabFood.classList.remove('active'); 
+         inventoryEquipment.classList.add('visible'); 
+         inventoryFood.classList.remove('visible'); 
+     });
+     tabFood.addEventListener('click', () => { 
+         tabFood.classList.add('active'); 
+         tabEquipment.classList.remove('active'); 
+         inventoryFood.classList.add('visible'); 
+         inventoryEquipment.classList.remove('visible'); 
+     });
+}
+
+// 唯一的、正确的 chatLink 点击事件
+chatLink.addEventListener('click', () => {
+    localStorage.setItem('isFireLit', isFireLit);
+    localStorage.setItem('isChairPlaced', isChairPlaced);
+});
+
+// 初始化
+updateTentVisuals();
+}
+    
+    // --- Page 4 Logic: New Chat UI ---
+const chatMessagesContainer = document.getElementById('chat-messages-p4');
+if (chatMessagesContainer) {
+    // --- 声音持续 ---
+    if (localStorage.getItem('isFireLit') === 'true') {
+        const fireLoopSound = document.getElementById('fire-loop-sound');
+        if (fireLoopSound) { fireLoopSound.volume = 0.3; fireLoopSound.play(); }
+    }
+
+    // --- 获取元素 ---
+    const chatInput = document.getElementById('chat-input-p4');
+    const sendButton = document.getElementById('send-button-p4');
+
+    // --- 数据管理 ---
+    // 从localStorage读取聊天记录，如果不存在则初始化
+    let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
+
+    // --- 核心函数 ---
+    // 函数：添加一条消息到屏幕上
+    function addMessageToScreen({ type, text }) {
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble-p4 ${type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
+        bubble.textContent = text;
+        chatMessagesContainer.appendChild(bubble);
+    }
+
+    // 函数：添加日期分隔符
+    function addDateSeparator(dateString) {
+        const separator = document.createElement('div');
+        separator.className = 'date-separator';
+        separator.textContent = dateString;
+        chatMessagesContainer.appendChild(separator);
+    }
+
+    // 函数：加载并显示整个聊天记录
+    function loadChat() {
+        chatMessagesContainer.innerHTML = ''; // 清空
+        let lastDate = null;
+
+        // 检查是否是第一次聊天，如果是，添加欢迎语
+        if (chatHistory.length === 0) {
+             const welcomeMessage = {
+                type: 'other',
+                text: '你好！我是你的私人帐篷。我非常忙，没办法及时回复你，但我会在每天半夜12点抽空读你发的所有信息，请随意发。',
+                date: new Date().toLocaleDateString() // e.g., "2025/8/6"
+            };
+            chatHistory.push(welcomeMessage);
+            localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+        }
+        
+        chatHistory.forEach(message => {
+            // 如果这条消息的日期和上一条不同，就加一个日期分隔符
+            if (message.date !== lastDate) {
+                addDateSeparator(message.date);
+                lastDate = message.date;
+            }
+            addMessageToScreen(message);
+        });
+
+        // 滚动到底部
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    }
+
+    // 函数：发送新消息
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (text === '') return;
+
+        const newMessage = {
+            type: 'my',
+            text: text,
+            date: new Date().toLocaleDateString()
+        };
+        
+        // 更新数据
+        chatHistory.push(newMessage);
+        localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+        
+        // 重新加载整个聊天记录，以正确处理日期
+        loadChat();
+        
+        // 清空输入框
+        chatInput.value = '';
+    }
+
+    // --- 绑定事件 ---
+    sendButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // --- 初始化 ---
+    loadChat();
+}
+
+    // --- Page 5 Logic: Task List Management (The complete, correct version) ---
+    const taskContainer = document.getElementById('task-container');
+    if (taskContainer) {
+        const completeTaskBtn = document.getElementById('complete-task-btn');
+        let tasks = JSON.parse(localStorage.getItem('nextStepTasks')) || [];
+
+        function renderTasks() {
+            taskContainer.innerHTML = '';
+            let hasIncompleteTask = false;
+
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = task.isCompleted;
+                checkbox.disabled = true;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.text;
+                input.disabled = task.isCompleted;
+
+                if (task.isCompleted) {
+                    input.classList.add('task-completed');
+                } else {
+                    hasIncompleteTask = true;
+                    input.addEventListener('input', () => {
+                        tasks[index].text = input.value;
+                        localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
+                    });
+                }
+                taskItem.appendChild(checkbox);
+                taskItem.appendChild(input);
+                taskContainer.appendChild(taskItem);
+            });
+
+            if (!hasIncompleteTask) {
+                const newTaskItem = document.createElement('div');
+                newTaskItem.className = 'task-item';
+                const newCheckbox = document.createElement('input');
+                newCheckbox.type = 'checkbox';
+                const newInput = document.createElement('input');
+                newInput.type = 'text';
+                newInput.placeholder = '新的最小行动...';
+
+                newInput.addEventListener('input', () => {
+                    const latestTask = tasks[tasks.length - 1];
+                    if (!latestTask || latestTask.isCompleted) {
+                        tasks.push({ text: newInput.value, isCompleted: false });
+                    } else {
+                        latestTask.text = newInput.value;
+                    }
+                    localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
+                });
+                newTaskItem.appendChild(newCheckbox);
+                newTaskItem.appendChild(newInput);
+                taskContainer.appendChild(newTaskItem);
+            }
+        }
+
+        completeTaskBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (tasks.length > 0) {
+                const lastTask = tasks[tasks.length - 1];
+                if (lastTask && !lastTask.isCompleted && lastTask.text && lastTask.text.trim() !== '') {
+                    lastTask.isCompleted = true;
+                    localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
+                    renderTasks();
+                }
+            }
+        });
+        
+        renderTasks();
+    }
+// --- 新增：Page 5 通用返回按钮逻辑 ---
+const backToPreviousBtn = document.getElementById('back-to-previous-btn');
+if (backToPreviousBtn) {
+    backToPreviousBtn.addEventListener('click', function(event) {
+        // 1. 阻止链接的默认跳转行为
+        event.preventDefault();
+        
+        // 2. 命令浏览器历史记录后退一步
+        window.history.back();
+    });
+    // --- 新增：Page 5 全部重置按钮逻辑 ---
+const clearTasksBtn = document.getElementById('clear-tasks-btn');
+if (clearTasksBtn) {
+    clearTasksBtn.addEventListener('click', function(event) {
+        // 1. 阻止链接的默认跳转行为
+        event.preventDefault();
+        
+        // 2. 直接从localStorage中删除整个任务列表的记录
+        localStorage.removeItem('nextStepTasks');
+        
+        // 3. 刷新页面，JS因为找不到记录，会自动回到初始状态
+        window.location.reload();
+    });
+}
+}});

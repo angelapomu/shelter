@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下一步行动</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+
+        <a href="index.html" class="back-arrow">‹</a>
+
+        <!-- 修改：给这个div加上 page5-content 这个类 -->
+        <div class="content-wrapper page5-content">
+            
+            <!-- 新增一个div来包裹所有内容，这样flexbox才能正确地将它们作为一个整体居中 -->
+            <div>
+                <div class="page5-title">➕下一步最小行动：</div>
+
+                <div id="task-container"></div>
+
+                <div class="sub-note">(确保你1分钟内能做完！)</div>
+
+                <div class="bottom-buttons">
+                    <a href="#" id="complete-task-btn" class="button">添加任务！</a>
+                    <br>
+                    <a href="#" id="clear-tasks-btn" class="button clear-button">清空任务</a>
+                    <br>
+                    <!-- 新增：在这里加上“返回上一页”按钮 -->
+                    <a href="#" id="back-to-previous-btn" class="button">返回上一页</a>
+                    <br>
+                    <a href="#" class="button">调查问卷</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
