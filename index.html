@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>拖延日志</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/style.css">
 </head>
+<!-- PWA Service Worker 注册脚本 -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/shelter/sw.js').then(registration => {
+        console.log('ServiceWorker registration successful');
+      }).catch(err => {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+</script>
 <script>
   var _hmt = _hmt || [];
   (function() {
