@@ -393,7 +393,7 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 .content-wrapper.page5-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 让顶部和底部元素分开 */
+    justify-content: space-around; /* 让顶部和底部元素分开 */
 }
 
 .page5-content > div:first-child {
@@ -402,6 +402,7 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 
 .page5-content .bottom-buttons {
     margin-top: auto; /* 核心魔法！让按钮组自动被推到底部 */
-    padding-top: 20%; /* 给按钮和列表之间留点空间 */
+    padding-top: 30px; 
+    padding-bottom: 20px; /* 给按钮和列表之间留点空间 */
     flex-shrink: 0; /* 防止按钮组被压缩 */
 }
