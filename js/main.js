@@ -89,6 +89,8 @@ if (tentContainer) {
     // --- 核心功能 1：生成食物 ---
     inventoryFood.addEventListener('click', function(event) {
     if (event.target.classList.contains('food-emoji-source')) {
+          // --- 新增：百度统计事件跟踪 ---
+        _hmt.push(['_trackEvent', 'p3_tent_interaction', 'click', 'spawn_food']);
         // 正确：现在“生成”时，播放简单的 spawnSound
         spawnSound.currentTime = 0;
         spawnSound.play();
@@ -119,6 +121,9 @@ if (tentContainer) {
 eatAllBtn.addEventListener('click', function() {
     const allEatableEmojis = document.querySelectorAll('.eatable-emoji');
     if (allEatableEmojis.length > 0) {
+        // --- 新增：百度统计事件跟踪 ---
+        _hmt.push(['_trackEvent', 'p3_tent_interaction', 'click', 'eat_all_food']);
+
         // 正确：“一口气吃掉”时，也播放需要被截取前1秒的 eatingSound
         playAudioSegment(eatingSound, 0, 1);
 
@@ -136,6 +141,47 @@ let isChairPlaced = localStorage.getItem('isChairPlaced') === 'true';
 
 // 唯一的、正确的 updateTentVisuals 函数
 function updateTentVisuals() {
+    // --- 新增：每日食物逻辑 ---
+const dailyFoodContainer = document.getElementById('daily-food-container');
+if (dailyFoodContainer) {
+    const lastCheckDate = localStorage.getItem('lastCheckDate');
+    const today = new Date().toLocaleDateString();
+
+    // 如果今天是新的一天 (或者第一次打开)
+    if (lastCheckDate !== today) {
+        // 定义一周的食物，你可以随便增删
+        const weeklyFoods = [
+            { name: '蛋糕', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f370.png' },
+            { name: '汉堡', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f354.png' },
+            { name: '草莓', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f353.png' },
+            { name: '西瓜', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f349.png' },
+            { name: '牛角包', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f950.png' },
+            { name: '饭团', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f359.png' },
+            { name: '牛奶', src: 'https://twemoji.maxcdn.com/v/latest/72x72/1f95b.png' }
+        ];
+        
+        // 随机选一个
+        const randomFood = weeklyFoods[Math.floor(Math.random() * weeklyFoods.length)];
+
+        // 保存今天的食物和“已检查”的日期
+        localStorage.setItem('todayFood', JSON.stringify(randomFood));
+        localStorage.setItem('lastCheckDate', today);
+    }
+
+    // 无论是不是新的一天，都尝试显示今天的食物
+    const todayFoodData = localStorage.getItem('todayFood');
+    if (todayFoodData) {
+        const food = JSON.parse(todayFoodData);
+        const foodImg = document.createElement('img');
+        foodImg.src = food.src;
+        foodImg.alt = food.name;
+        foodImg.className = 'inventory-icon food-emoji-source';
+        // 防止重复添加
+        if (!dailyFoodContainer.querySelector(`img[alt="${food.name}"]`)) {
+             dailyFoodContainer.appendChild(foodImg);
+        }
+    }
+}
     // 目标1：修复图片切换逻辑
     if (isFireLit && isChairPlaced) {
         tentBackground.src = 'images/tent-fire-chair.png';
@@ -160,6 +206,8 @@ function updateTentVisuals() {
 
 // 唯一的、正确的 woodItem 点击事件 (目标2：实现无限点击)
 woodItem.addEventListener('click', () => {
+    // --- 新增：百度统计事件跟踪 ---
+    _hmt.push(['_trackEvent', 'p3_tent_interaction', 'click', 'use_wood']);
     isFireLit = true; 
     localStorage.setItem('isFireLit', 'true');
     fireStartSound.currentTime = 0;
@@ -270,6 +318,9 @@ if (chatMessagesContainer) {
 
     // 函数：发送新消息
 function sendMessage() {
+     // --- 新增：百度统计事件跟踪 ---
+    _hmt.push(['_trackEvent', 'p4_chat', 'click', 'send_message']);
+
     const text = chatInput.value.trim();
     if (text === '') return;
 
@@ -327,7 +378,8 @@ chatInput.addEventListener('keypress', function(event) {
                 taskItem.className = 'task-item';
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.checked = task.isCompleted;
+                // 如果任务是“已完成”或者“已被勾选”，都让复选框显示为打勾状态
+                checkbox.checked = task.isCompleted || task.isChecked;
                 checkbox.disabled = true;
                 const input = document.createElement('input');
                 input.type = 'text';
@@ -339,7 +391,14 @@ chatInput.addEventListener('keypress', function(event) {
                 } else {
                     hasIncompleteTask = true;
                     checkbox.disabled = false; // 1. 解除禁用，让它可以被点击
-                    checkbox.addEventListener('click', () => { /* 2. 暂时什么都不做，但绑定是关键 */ });
+                    checkbox.addEventListener('click', () => {
+    // --- 核心修复：把勾选状态保存到任务对象中 ---
+    // 1. 我们给 task 对象创建一个新的属性 isChecked 来记录勾选状态
+    tasks[index].isChecked = checkbox.checked;
+    
+    // 2. 保存整个更新后的任务列表到 localStorage
+    localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
+});
                     input.addEventListener('input', () => {
                         tasks[index].text = input.value;
                         localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
@@ -388,6 +447,8 @@ input.addEventListener('keypress', function(event) {
         // “完成！+ 添加新行动”按钮的逻辑 (已加入自动滚动)
 completeTaskBtn.addEventListener('click', (e) => {
     e.preventDefault();
+      // --- 新增：百度统计事件跟踪 ---
+    _hmt.push(['_trackEvent', 'p5_tasks', 'click', 'add_new_action']);
     
     const currentTask = tasks.find(task => !task.isCompleted);
     
