@@ -17,7 +17,7 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 .content-wrapper { padding: 30px 25px; height: 100%; box-sizing: border-box; position: relative; z-index: 2; overflow-y: auto; }
 
 /* --- 核心改动：让 Page 1 和 Page 5 都使用垂直居中布局 --- */
-.content-wrapper.page1-content, .content-wrapper.page5-content {
+.content-wrapper.page1-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -58,12 +58,13 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 .sub-note { color: #999; text-align: center; margin-top: 20px; }
 .back-arrow {
     position: absolute;
-    top: 50%;
-    left: 3px; /* <-- 修改：把它从屏幕外拉回来 */
-    transform: translateY(-50%);
+    /* --- 核心改动：把它定位在标题旁边 --- */
+    top: 5px; /* 从顶部向下45px，大致和标题在同一水平线 */
+    left: 5px; /* 离左边20px */
+    /* --- 我们不再使用transform了 --- */
     text-decoration: none;
-    color: #bbbbbb; /* <-- 修改：让颜色稍微深一点，更清晰 */
-    font-size: 80px;
+    color: #cccccc;
+    font-size: 80px; /* 稍微缩小一点，更协调 */
     font-weight: 200;
     z-index: 10;
 }
@@ -386,4 +387,21 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 
 .clear-button:hover {
     background-color: #ea6055; /* 鼠标悬停时颜色变深 */
+}
+
+/* --- 新增：Page 5 专用滚动布局 --- */
+.content-wrapper.page5-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 让顶部和底部元素分开 */
+}
+
+.page5-content > div:first-child {
+    /* 这是任务列表的容器，让它自然增长 */
+}
+
+.page5-content .bottom-buttons {
+    margin-top: auto; /* 核心魔法！让按钮组自动被推到底部 */
+    padding-top: 20%; /* 给按钮和列表之间留点空间 */
+    flex-shrink: 0; /* 防止按钮组被压缩 */
 }

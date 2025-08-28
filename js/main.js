@@ -297,7 +297,17 @@ sendButton.addEventListener('mousedown', function(event) {
 });
 
 sendButton.addEventListener('click', sendMessage);
-
+// --- 新增：在这里加上监听回车键的功能 ---
+chatInput.addEventListener('keypress', function(event) {
+    // 检查按下的键是否是 "Enter"
+    if (event.key === 'Enter') {
+        // 阻止回车键的默认行为 (比如换行)
+        event.preventDefault();
+        
+        // 手动触发“发送”功能
+        sendMessage();
+    }
+});
     // --- 初始化 ---
     loadChat();
 }
@@ -328,10 +338,23 @@ sendButton.addEventListener('click', sendMessage);
                     input.classList.add('task-completed');
                 } else {
                     hasIncompleteTask = true;
+                    checkbox.disabled = false; // 1. 解除禁用，让它可以被点击
+                    checkbox.addEventListener('click', () => { /* 2. 暂时什么都不做，但绑定是关键 */ });
                     input.addEventListener('input', () => {
                         tasks[index].text = input.value;
                         localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
                     });
+                    // --- 新增：在这里加上监听回-车键的功能 ---
+input.addEventListener('keypress', function(event) {
+    // 检查按下的键是否是 "Enter"
+    if (event.key === 'Enter') {
+        // 阻止回车键的默认行为 (比如在表单中提交)
+        event.preventDefault();
+        
+        // 手动触发“完成！+ 添加新行动”按钮的点击事件
+        completeTaskBtn.click();
+    }
+});
                 }
                 taskItem.appendChild(checkbox);
                 taskItem.appendChild(input);
@@ -362,17 +385,29 @@ sendButton.addEventListener('click', sendMessage);
             }
         }
 
-        completeTaskBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (tasks.length > 0) {
-                const lastTask = tasks[tasks.length - 1];
-                if (lastTask && !lastTask.isCompleted && lastTask.text && lastTask.text.trim() !== '') {
-                    lastTask.isCompleted = true;
-                    localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
-                    renderTasks();
-                }
-            }
-        });
+        // “完成！+ 添加新行动”按钮的逻辑 (已加入自动滚动)
+completeTaskBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    const currentTask = tasks.find(task => !task.isCompleted);
+    
+    if (currentTask && currentTask.text.trim() !== '') {
+        currentTask.isCompleted = true;
+        tasks.push({ text: '', isCompleted: false, isChecked: false });
+        localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
+        renderTasks();
+
+        // --- 核心魔法：让内容容器滚动到底部 ---
+        const contentWrapper = document.querySelector('.page5-content');
+        if (contentWrapper) {
+            // 使用平滑滚动效果
+            contentWrapper.scrollTo({
+                top: contentWrapper.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }
+});
         
         renderTasks();
     }
