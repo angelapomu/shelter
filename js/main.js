@@ -286,20 +286,17 @@ function sendMessage() {
     
     chatInput.value = '';
     
-    // --- 核心魔法：立刻让输入框重新获得焦点 ---
-    chatInput.focus();
-    }
+    // 我们不再在这里调用 focus()
+}
 
-    // --- 绑定事件 ---
-    sendButton.addEventListener('click', function(event) {
-    event.preventDefault(); // 阻止按钮导致输入框失焦的默认行为
-    sendMessage();
-    });
-    chatInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            sendMessage();
-        }
-    });
+// --- 核心改动：使用 mousedown 事件来防止失焦 ---
+sendButton.addEventListener('mousedown', function(event) {
+    // 关键！阻止 mousedown 事件的默认行为，
+    // 它的默认行为之一就是让输入框失焦。
+    event.preventDefault();
+});
+
+sendButton.addEventListener('click', sendMessage);
 
     // --- 初始化 ---
     loadChat();
