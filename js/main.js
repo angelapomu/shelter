@@ -269,29 +269,32 @@ if (chatMessagesContainer) {
     }
 
     // 函数：发送新消息
-    function sendMessage() {
-        const text = chatInput.value.trim();
-        if (text === '') return;
+function sendMessage() {
+    const text = chatInput.value.trim();
+    if (text === '') return;
 
-        const newMessage = {
-            type: 'my',
-            text: text,
-            date: new Date().toLocaleDateString()
-        };
-        
-        // 更新数据
-        chatHistory.push(newMessage);
-        localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
-        
-        // 重新加载整个聊天记录，以正确处理日期
-        loadChat();
-        
-        // 清空输入框
-        chatInput.value = '';
+    const newMessage = {
+        type: 'my',
+        text: text,
+        date: new Date().toLocaleDateString()
+    };
+    
+    chatHistory.push(newMessage);
+    localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+    
+    loadChat();
+    
+    chatInput.value = '';
+    
+    // --- 核心魔法：立刻让输入框重新获得焦点 ---
+    chatInput.focus();
     }
 
     // --- 绑定事件 ---
-    sendButton.addEventListener('click', sendMessage);
+    sendButton.addEventListener('click', function(event) {
+    event.preventDefault(); // 阻止按钮导致输入框失焦的默认行为
+    sendMessage();
+    });
     chatInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             sendMessage();
