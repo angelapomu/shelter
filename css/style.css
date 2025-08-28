@@ -1,303 +1,285 @@
-/* --- REM 适配基础 --- */
-html {
-    font-size: 10px; /* JS会动态修改这个值 */
-}
-
 /* --- 全局样式 --- */
-body { 
-    margin: 0; 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-    background-color: #f0f0f0; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-}
-.app-container { 
-    width: 100%; 
-    height: 100%; 
-    background-color: white; 
-    position: relative; 
-    overflow: hidden; 
-}
-@media (min-width: 45.0rem) { /* 450px */
-    .app-container { 
-        width: 39.3rem; /* 393px */
-        height: 85.2rem; /* 852px */
-        border-radius: 4.0rem; /* 40px */
-        box-shadow: 0 1.0rem 3.0rem rgba(0,0,0,0.2); 
-    }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+.app-container { width: 100%; height: 100%; background-color: white; position: relative; overflow: hidden; }
+@media (min-width: 450px) {
+    .app-container { width: 393px; height: 852px; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 }
 .background-image-layer {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: auto;
+    /* --- 核心改动开始 --- */
+    width: 100%;   /* 宽度永远撑满容器 */
+    height: auto;  /* 高度自动调整，保持原始宽高比 */
+    /* --- 核心改动结束 --- */
     z-index: 1;
 }
-.content-wrapper { 
-    padding: 3.0rem 2.5rem; /* 30px 25px */
-    height: 100%; 
-    box-sizing: border-box; 
-    position: relative; 
-    z-index: 2; 
-    overflow-y: auto; 
-}
+.content-wrapper { padding: 30px 25px; height: 100%; box-sizing: border-box; position: relative; z-index: 2; overflow-y: auto; }
+
+/* --- 核心改动：让 Page 1 和 Page 5 都使用垂直居中布局 --- */
 .content-wrapper.page1-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
-.button { 
-    display: inline-block; 
-    padding: 1.2rem 3.0rem; /* 12px 30px */
-    margin-top: 2.0rem; /* 20px */
-    border: none; 
-    background-color: #f0f0f0; 
-    border-radius: 3.0rem; /* 30px */
-    font-size: 1.8rem; /* 18px */
-    font-weight: bold; 
-    cursor: pointer; 
-    text-decoration: none; 
-    color: #333; 
-}
-.home-icon { 
-    position: absolute; 
-    top: 2.0rem; /* 20px */
-    right: 2.0rem; /* 20px */
-    z-index: 100; 
-}
-.home-icon img { 
-    width: 3.2rem; /* 32px */
-    height: 3.2rem; /* 32px */
-}
-#snow-canvas { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    z-index: 1; 
-    pointer-events: none; 
-}
-.back-button { 
-    position: absolute; 
-    top: 2.0rem; /* 20px */
-    left: 2.0rem; /* 20px */
-    background-color: rgba(0, 0, 0, 0.4); 
-    color: white; 
-    padding: 0.8rem 1.5rem; /* 8px 15px */
-    border-radius: 2.0rem; /* 20px */
-    text-decoration: none; 
-    font-size: 1.4rem; /* 14px */
-}
 
-/* --- Page 1 新UI样式 --- */
-.title-container { 
-    display: flex; 
-    align-items: center; 
-    font-size: 2.0rem; /* 20px */
-    font-weight: bold; 
-    color: #333; 
+/* (以下是其他所有未改变的样式，请确保它们都在你的文件中) */
+.button { display: inline-block; padding: 12px 30px; margin-top: 20px; border: none; background-color: #f0f0f0; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; text-decoration: none; color: #333; }
+.home-icon { position: absolute; top: 20px; right: 20px; z-index: 100; }
+.home-icon img { width: 32px; height: 32px; }
+#snow-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.back-button { position: absolute; top: 20px; left: 20px; background-color: rgba(0, 0, 0, 0.4); color: white; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 14px; }
+.chat-header { padding: 15px; background-color: #f7f7f7; border-bottom: 1px solid #e7e7e7; text-align: center; font-weight: bold; }
+.chat-messages { height: calc(100% - 120px); overflow-y: auto; padding: 10px; }
+.chat-input-area { position: absolute; bottom: 0; width: 100%; height: 60px; display: flex; align-items: center; padding: 0 10px; background-color: #f7f7f7; box-sizing: border-box; }
+.chat-input { flex-grow: 1; height: 40px; border-radius: 20px; border: 1px solid #ddd; padding: 0 15px; margin-right: 10px; }
+.send-button { width: 60px; height: 40px; border-radius: 20px; border: none; background-color: #007bff; color: white; cursor: pointer; }
+.message-bubble { max-width: 70%; padding: 10px 15px; border-radius: 18px; margin-bottom: 10px; clear: both; }
+.my-message { background-color: #007bff; color: white; float: right; }
+.other-message { background-color: #e9e9eb; color: black; float: left; }
+.add-button { display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; background-color: #a0a0a0; border-radius: 50%; color: white; font-size: 28px; font-weight: 300; text-decoration: none; margin-right: 10px; flex-shrink: 0; cursor: pointer; }
+.title-container { display: flex; align-items: center; font-size: 20px; font-weight: bold; color: #333; }
+.title-container img { width: 28px; height: 28px; margin-right: 8px; }
+.input-box { position: relative; background-color: #f7f7f7; border-radius: 8px; padding: 15px; margin-top: 10px; }
+.input-box textarea { width: 100%; height: 80px; border: none; background: transparent; resize: none; font-size: 16px; }
+.input-box textarea:focus { outline: none; }
+.plus-icon { position: absolute; bottom: 10px; left: 15px; font-size: 24px; color: #aaa; text-decoration: none; cursor: pointer; }
+.plus-icon:hover { color: #777; }
+.section-title { font-size: 18px; font-weight: bold; color: #333; margin-top: 30px; }
+.choice-section { margin-top: 20px; }
+.choice-option { display: flex; align-items: center; font-size: 18px; cursor: pointer; padding: 10px 0; }
+.choice-option .icon { font-size: 24px; margin-right: 10px; }
+.page5-title { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+.task-item { display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+.task-item input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; }
+.task-item input[type="text"] { border: none; font-size: 18px; width: 100%; background: transparent; }
+.task-item input[type="text"]:focus { outline: none; }
+.task-item input[type="text"].task-completed { text-decoration: line-through; color: #aaa; }
+.sub-note { color: #999; text-align: center; margin-top: 20px; }
+.back-arrow {
+    position: absolute;
+    /* --- 核心改动：把它定位在标题旁边 --- */
+    top: 5px; /* 从顶部向下45px，大致和标题在同一水平线 */
+    left: 5px; /* 离左边20px */
+    /* --- 我们不再使用transform了 --- */
+    text-decoration: none;
+    color: #cccccc;
+    font-size: 80px; /* 稍微缩小一点，更协调 */
+    font-weight: 200;
+    z-index: 10;
 }
-.title-container img { 
-    width: 2.8rem; /* 28px */
-    height: 2.8rem; /* 28px */
-    margin-right: 0.8rem; /* 8px */
-}
-.input-box { 
-    position: relative; 
-    background-color: #f7f7f7; 
-    border-radius: 0.8rem; /* 8px */
-    padding: 1.5rem; /* 15px */
-    margin-top: 1.0rem; /* 10px */
-}
-.input-box textarea { 
-    width: 100%; 
-    height: 8.0rem; /* 80px */
-    border: none; 
-    background: transparent; 
-    resize: none; 
-    font-size: 1.6rem; /* 16px */
-}
-.input-box textarea:focus { 
-    outline: none; 
-}
-.plus-icon { 
-    position: absolute; 
-    bottom: 1.0rem; /* 10px */
-    left: 1.5rem; /* 15px */
-    font-size: 2.4rem; /* 24px */
-    color: #aaa; 
-    text-decoration: none; 
-    cursor: pointer; 
-}
-.plus-icon:hover { 
-    color: #777; 
-}
-.section-title { 
-    font-size: 1.8rem; /* 18px */
-    font-weight: bold; 
-    color: #333; 
-    margin-top: 3.0rem; /* 30px */
-}
-.choice-section { 
-    margin-top: 2.0rem; /* 20px */
-}
-.choice-option { 
-    display: flex; 
-    align-items: center; 
-    font-size: 1.8rem; /* 18px */
-    cursor: pointer; 
-    padding: 1.0rem 0; /* 10px */
-}
-.choice-option .icon { 
-    font-size: 2.4rem; /* 24px */
-    margin-right: 1.0rem; /* 10px */
-}
+.bottom-buttons { margin-top: 50px; text-align: center; }
 
-/* --- Page 2 动态文本样式 --- */
+/* --- 新增：Page 2 动态文本样式 --- */
 .overlay-text {
     position: absolute;
     color: white;
-    font-size: 2.0rem; /* 20px */
+    font-size: 20px;
     font-weight: bold;
     line-height: 1.5;
-    text-shadow: 0.1rem 0.1rem 0.4rem rgba(0, 0, 0, 0.7);
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); /* 给文字加点阴影，更清晰 */
+    
+    /* 默认隐藏，并设置淡入效果 */
     opacity: 0;
     transition: opacity 0.8s ease-in-out;
 }
+
 .overlay-button {
     position: absolute;
     opacity: 0;
     transition: opacity 0.8s ease-in-out;
     background-color: rgba(255, 255, 255, 0.9);
-    border: 0.2rem solid #555; /* 2px */
+    border: 2px solid #555;
 }
+
+/* 一个简单的类，让JS用来显示元素 */
 .visible {
     opacity: 1;
 }
+
+/* --- 新增：每个元素的精确定位 --- */
 #text-1 {
-    top: 6.0rem; /* 60px */
-    left: 4.0rem; /* 40px */
+    top: 60px;
+    left: 40px;
 }
 #text-2 {
-    top: 35.0rem; /* 350px */
-    right: 4.0rem; /* 40px */
+    top: 350px;
+    right: 40px;
     text-align: right;
 }
 #text-3 {
-    bottom: 16.0rem; /* 160px */
-    left: 4.0rem; /* 40px */
+    bottom: 160px;
+    left: 40px;
 }
 #enter-tent-btn-p2 {
-    bottom: 9.0rem; /* 90px */
-    left: 3.5rem; /* 35px */
+    bottom: 90px;
+    left: 35px;
 }
 
-/* --- Page 3 新UI样式 --- */
+/* --- 新增：Page 3 新UI样式 --- */
 .top-icons-container {
     position: absolute;
-    top: 2.0rem; /* 20px */
+    top: 20px;
     left: 0;
     width: 100%;
-    padding: 0 2.5rem; /* 25px */
+    padding: 0 25px;
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     z-index: 10;
 }
 .top-icon {
-    width: 4.0rem; /* 40px */
-    height: 4.0rem; /* 40px */
+    width: 40px;
+    height: 40px;
     cursor: pointer;
 }
+
 .inventory-bar {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    height: 25.0rem; /* 250px */
-    background-color: rgba(128, 128, 128, 0.8);
+    width: 250%;
+    height: 250px !important;
+    background-color: rgba(128, 128, 128, 0.8); /* 半透明灰色 */
     z-index: 10;
 }
 .tabs {
     display: flex;
-    border-bottom: 0.1rem solid #aaa; /* 1px */
+    border-bottom: 1px solid #aaa;
 }
 .tab-item {
-    padding: 1.0rem 2.0rem; /* 10px 20px */
+    padding: 10px 20px;
     color: #eee;
     cursor: pointer;
 }
 .tab-item.active {
     color: white;
     font-weight: bold;
-    border-bottom: 0.2rem solid white; /* 2px */
+    border-bottom: 2px solid white;
 }
 .inventory-content {
-    padding: 1.5rem; /* 15px */
-    display: none;
+    padding: 15px;
+    display: none; /* 默认隐藏 */
     align-items: center;
 }
 .inventory-content.visible {
-    display: flex;
+    display: flex; /* 显示出来的物品栏 */
 }
 .inventory-icon {
-    width: 5.0rem; /* 50px */
-    height: 5.0rem; /* 50px */
-    margin-right: 1.5rem; /* 15px */
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
     cursor: pointer;
 }
-.eatable-emoji {
+/* --- 新增：Page 3 新UI样式 --- */
+.top-icons-container {
     position: absolute;
-    width: 5.0rem; /* 50px */
-    height: 5.0rem; /* 50px */
+    top: 20px;
+    left: 0;
+    width: 100%;
+    padding: 0 25px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+}
+.top-icon {
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    z-index: 5;
-    transition: transform 0.2s, opacity 0.3s ease-out;
 }
-.eatable-emoji:hover {
-    transform: scale(1.2);
+
+.inventory-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background-color: rgba(128, 128, 128, 0.8); /* 半透明灰色 */
+    z-index: 10;
 }
-.inventory-button {
-    margin-left: auto;
-    padding: 1.0rem 1.5rem; /* 10px 15px */
-    border: none;
-    background-color: #ff6347;
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #aaa;
+}
+.tab-item {
+    padding: 10px 20px;
+    color: #eee;
+    cursor: pointer;
+}
+.tab-item.active {
     color: white;
     font-weight: bold;
-    border-radius: 0.8rem; /* 8px */
+    border-bottom: 2px solid white;
+}
+.inventory-content {
+    padding: 15px;
+    display: none; /* 默认隐藏 */
+    align-items: center;
+}
+.inventory-content.visible {
+    display: flex; /* 显示出来的物品栏 */
+}
+.inventory-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+/* --- 新增：屏幕上可吃的Emoji样式 --- */
+.eatable-emoji {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 5; /* 确保它在背景之上，但在菜单栏之下 */
+    transition: transform 0.2s, opacity 0.3s ease-out; /* 添加动画过渡效果 */
+}
+
+.eatable-emoji:hover {
+    transform: scale(1.2); /* 鼠标悬停时放大一点 */
+}
+
+/* --- 新增：“一口气吃掉”按钮的样式 --- */
+.inventory-button {
+    margin-left: auto; /* 关键！让按钮自动靠到最右边 */
+    padding: 10px 15px;
+    border: none;
+    background-color: #ff6347; /* 番茄红，看起来很有食欲 */
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
     cursor: pointer;
     outline: none;
 }
-.inventory-button:hover {
-    background-color: #ff4500;
-}
 
-/* --- Page 4 新UI样式 --- */
+.inventory-button:hover {
+    background-color: #ff4500; /* 鼠标悬停时颜色变深 */
+}
+/* --- 新增：Page 4 全新聊天UI样式 --- */
 .chat-ui-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: rgb(50, 50, 50);
+    background-color: rgb(50, 50, 50); /* 黑色背景 */
 }
+
 .chat-header-p4 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.0rem 1.5rem; /* 10px 15px */
+    padding: 10px 15px;
     background-color: #000000;
     color: white;
-    flex-shrink: 0;
+    flex-shrink: 0; /* 防止头部被压缩 */
 }
 .chat-header-icon {
-    width: 2.4rem; /* 24px */
-    height: 2.4rem; /* 24px */
+    width: 24px;
+    height: 24px;
     text-decoration: none;
     color: white;
-    font-size: 2.8rem; /* 28px */
+    font-size: 28px;
     font-weight: bold;
 }
 .chat-header-icon img {
@@ -306,24 +288,27 @@ body {
 }
 .chat-header-title {
     font-weight: bold;
-    font-size: 1.8rem; /* 18px */
+    font-size: 18px;
 }
+
 .chat-messages-p4 {
-    flex-grow: 1;
+    flex-grow: 1; /* 占据所有剩余空间 */
     overflow-y: auto;
-    padding: 1.5rem; /* 15px */
+    padding: 15px;
 }
+
 .date-separator {
     text-align: center;
     color: #888;
-    font-size: 1.4rem; /* 14px */
-    margin: 1.0rem 0; /* 10px */
+    font-size: 14px;
+    margin: 10px 0;
 }
+
 .message-bubble-p4 {
     max-width: 75%;
-    padding: 1.0rem 1.5rem; /* 10px 15px */
-    border-radius: 1.8rem; /* 18px */
-    margin-bottom: 1.0rem; /* 10px */
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
     line-height: 1.4;
     position: relative;
     word-wrap: break-word;
@@ -340,10 +325,14 @@ body {
     float: left;
     clear: both;
 }
+/* 绘制气泡的小尾巴 */
+
+
+
 .chat-input-area-p4 {
     display: flex;
     align-items: center;
-    padding: 1.0rem; /* 10px */
+    padding: 10px;
     background-color: #191919;
     flex-shrink: 0;
 }
@@ -351,22 +340,22 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 3.6rem; /* 36px */
-    height: 3.6rem; /* 36px */
+    width: 36px;
+    height: 36px;
     background-color: #555;
     border-radius: 50%;
     color: white;
-    font-size: 2.4rem; /* 24px */
+    font-size: 24px;
     text-decoration: none;
-    margin-right: 1.0rem; /* 10px */
+    margin-right: 10px;
     flex-shrink: 0;
 }
 .chat-input-p4 {
     flex-grow: 1;
-    height: 3.6rem; /* 36px */
-    border-radius: 1.8rem; /* 18px */
+    height: 36px;
+    border-radius: 18px;
     border: none;
-    padding: 0 1.5rem; /* 15px */
+    padding: 0 15px;
     background-color: #555;
     color: white;
 }
@@ -374,82 +363,46 @@ body {
     outline: none;
 }
 .send-button-p4 {
-    width: 6.0rem; /* 60px */
-    height: 3.6rem; /* 36px */
-    border-radius: 1.8rem; /* 18px */
+    width: 60px;
+    height: 36px;
+    border-radius: 18px;
     border: none;
     background-color: #8cb8e7;
     color: rgb(0, 0, 0);
     font-weight: bold;
-    margin-left: 1.0rem; /* 10px */
+    margin-left: 10px;
     cursor: pointer;
 }
 
-/* --- Page 5 新UI样式 --- */
-.page5-title { 
-    font-size: 2.4rem; /* 24px */
-    font-weight: bold; 
-    margin-bottom: 2.0rem; /* 20px */
-    text-align: center; 
+/* 让 Page 3 的顶部图标统一尺寸 */
+.top-icon {
+    width: 40px;
+    height: 40px;
 }
-.task-item { 
-    display: flex; 
-    align-items: center; 
-    border-bottom: 0.1rem solid #eee; /* 1px */
-    padding: 1.0rem 0; /* 10px */
-}
-.task-item input[type="checkbox"] { 
-    width: 2.2rem; /* 22px */
-    height: 2.2rem; /* 22px */
-    margin-right: 1.5rem; /* 15px */
-    flex-shrink: 0; 
-}
-.task-item input[type="text"] { 
-    border: none; 
-    font-size: 1.8rem; /* 18px */
-    width: 100%; 
-    background: transparent; 
-}
-.task-item input[type="text"]:focus { 
-    outline: none; 
-}
-.task-item input[type="text"].task-completed { 
-    text-decoration: line-through; 
-    color: #aaa; 
-}
-.sub-note { 
-    color: #999; 
-    text-align: center; 
-    margin-top: 2.0rem; /* 20px */
-}
-.back-arrow {
-    position: absolute;
-    top: 0.5rem; /* 5px */
-    left: 0.5rem; /* 5px */
-    text-decoration: none;
-    color: #cccccc;
-    font-size: 8.0rem; /* 80px */
-    font-weight: 200;
-    z-index: 10;
-}
-.bottom-buttons { 
-    margin-top: 5.0rem; /* 50px */
-    text-align: center; 
-}
+/* --- 新增：“清空”按钮的特殊样式 --- */
 .clear-button {
-    background-color: #f28b82;
+    background-color: #f28b82; /* 淡红色，表示这是一个“清除”操作 */
     color: white;
 }
+
 .clear-button:hover {
-    background-color: #ea6055;
+    background-color: #ea6055; /* 鼠标悬停时颜色变深 */
 }
+
+/* --- 新增：Page 5 专用滚动布局 --- */
 .content-wrapper.page5-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: space-around; /* 让顶部和底部元素分开 */
 }
+
+.page5-content > div:first-child {
+    /* 这是任务列表的容器，让它自然增长 */
+}
+
 .page5-content .bottom-buttons {
-    padding-top: 3.0rem; /* 30px */
-    padding-bottom: 2.0rem; /* 20px */
-    flex-shrink: 0;
+    margin-top: auto; /* 核心魔法！让按钮组自动被推到底部 */
+    padding-top: 30px; 
+    padding-bottom: 20px; /* 给按钮和列表之间留点空间 */
+    flex-shrink: 0; /* 防止按钮组被压缩 */
 }

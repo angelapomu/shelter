@@ -1,20 +1,3 @@
-// --- 新增：REM 响应式布局引擎 ---
-(function(doc, win) {
-    var docEl = doc.documentElement,
-        resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
-        recalc = function() {
-            var clientWidth = docEl.clientWidth;
-            if (!clientWidth) return;
-            // 我们以 393px 的宽度为设计基准
-            // 在这个宽度下，1rem = 10px
-            docEl.style.fontSize = 10 * (clientWidth / 393) + 'px';
-        };
-
-    if (!doc.addEventListener) return;
-    win.addEventListener(resizeEvt, recalc, false);
-    doc.addEventListener('DOMContentLoaded', recalc, false);
-})(document, window);
-
 document.addEventListener('DOMContentLoaded', function() {
 
     // --- Page 1 Logic: Navigation & Data Persistence ---
