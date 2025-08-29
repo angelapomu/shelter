@@ -510,9 +510,9 @@ if (clearTasksBtn) {
     clearTasksBtn.addEventListener('click', function(event) {
         // 1. 阻止链接的默认跳转行为
         event.preventDefault();
+        tasks = []; // 1. 直接清空内存中的任务数组
         
-        // 2. 直接从localStorage中删除整个任务列表的记录
-        localStorage.removeItem('nextStepTasks');
+        localStorage.setItem('nextStepTasks', JSON.stringify(tasks)); // 2. 把空数组存回去
         
         // 3. 刷新页面，JS因为找不到记录，会自动回到初始状态
         window.location.reload();
