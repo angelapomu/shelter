@@ -474,6 +474,14 @@ completeTaskBtn.addEventListener('click', (e) => {
         localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
         renderTasks();
 
+        // --- 核心魔法：找到最后一个输入框并聚焦 ---
+        const allInputs = taskContainer.querySelectorAll('input[type="text"]');
+        const lastInput = allInputs[allInputs.length - 1];
+        if (lastInput) {
+            lastInput.focus();
+        }
+   
+
         // --- 核心魔法：让内容容器滚动到底部 ---
         const contentWrapper = document.querySelector('.page5-content');
         if (contentWrapper) {
