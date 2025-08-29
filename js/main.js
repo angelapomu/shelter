@@ -378,6 +378,11 @@ chatInput.addEventListener('keypress', function(event) {
         function renderTasks() {
             taskContainer.innerHTML = '';
             let hasIncompleteTask = false;
+            // --- 核心修复：在这里初始化任务数组 ---
+            if (tasks.length === 0) {
+                tasks.push({ text: '', isCompleted: false, isChecked: false });
+            }
+
 
             tasks.forEach((task, index) => {
                 const taskItem = document.createElement('div');
@@ -397,7 +402,7 @@ chatInput.addEventListener('keypress', function(event) {
                 } else {
                     hasIncompleteTask = true;
                     checkbox.disabled = false; // 1. 解除禁用，让它可以被点击
-                    checkbox.addEventListener('click', () => {
+                checkbox.addEventListener('click', () => {
                         // --- 新增：在这里播放打勾音效 ---
                         if (checkboxSound) {
                         checkboxSound.currentTime = 0;
@@ -473,14 +478,7 @@ completeTaskBtn.addEventListener('click', (e) => {
         tasks.push({ text: '', isCompleted: false, isChecked: false });
         localStorage.setItem('nextStepTasks', JSON.stringify(tasks));
         renderTasks();
-
-        // --- 核心魔法：找到最后一个输入框并聚焦 ---
-        const allInputs = taskContainer.querySelectorAll('input[type="text"]');
-        const lastInput = allInputs[allInputs.length - 1];
-        if (lastInput) {
-            lastInput.focus();
-        }
-   
+        
 
         // --- 核心魔法：让内容容器滚动到底部 ---
         const contentWrapper = document.querySelector('.page5-content');
