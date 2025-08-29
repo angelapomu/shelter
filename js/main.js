@@ -364,6 +364,12 @@ chatInput.addEventListener('keypress', function(event) {
 }
 
     // --- Page 5 Logic: Task List Management (The complete, correct version) ---
+    // --- Page 5 Logic: Task List Management ---
+// 新增：获取Page 5的音效元素
+    const checkboxSound = document.getElementById('checkbox-sound');
+    const addTaskSound = document.getElementById('add-task-sound');
+
+
     const taskContainer = document.getElementById('task-container');
     if (taskContainer) {
         const completeTaskBtn = document.getElementById('complete-task-btn');
@@ -392,6 +398,11 @@ chatInput.addEventListener('keypress', function(event) {
                     hasIncompleteTask = true;
                     checkbox.disabled = false; // 1. 解除禁用，让它可以被点击
                     checkbox.addEventListener('click', () => {
+                        // --- 新增：在这里播放打勾音效 ---
+                        if (checkboxSound) {
+                        checkboxSound.currentTime = 0;
+                        checkboxSound.play();
+                }
     // --- 核心修复：把勾选状态保存到任务对象中 ---
     // 1. 我们给 task 对象创建一个新的属性 isChecked 来记录勾选状态
     tasks[index].isChecked = checkbox.checked;
@@ -451,6 +462,11 @@ completeTaskBtn.addEventListener('click', (e) => {
     _hmt.push(['_trackEvent', 'p5_tasks', 'click', 'add_new_action']);
     
     const currentTask = tasks.find(task => !task.isCompleted);
+    // --- 新增：在这里播放添加新任务的音效 ---
+        if (addTaskSound) {
+            addTaskSound.currentTime = 0;
+            addTaskSound.play();
+        }
     
     if (currentTask && currentTask.text.trim() !== '') {
         currentTask.isCompleted = true;
