@@ -265,6 +265,12 @@ if (chatMessagesContainer) {
     // --- 获取元素 ---
     const chatInput = document.getElementById('chat-input-p4');
     const sendButton = document.getElementById('send-button-p4');
+    // --- 新增：获取菜单元素，并定义一个变量来追踪当前操作的消息 ---
+    const messageMenu = document.getElementById('message-menu');
+    const commentInput = document.getElementById('comment-input');
+    const commentSubmitBtn = document.getElementById('comment-submit-btn');
+    let activeMessageIndex = null;
+    
 
     // --- 数据管理 ---
     // 从localStorage读取聊天记录，如果不存在则初始化
@@ -272,11 +278,51 @@ if (chatMessagesContainer) {
 
     // --- 核心函数 ---
     // 函数：添加一条消息到屏幕上
-    function addMessageToScreen({ type, text }) {
-        const bubble = document.createElement('div');
-        bubble.className = `message-bubble-p4 ${type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
-        bubble.textContent = text;
-        chatMessagesContainer.appendChild(bubble);
+    function addMessageToScreen(message, index) {
+    const bubble = document.createElement('div');
+    bubble.className = `message-bubble-p4 ${message.type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
+    
+    // 为了安全，我们默认使用 textContent
+    bubble.textContent = message.text;
+
+    // 如果有Reactions，就创建一个div来显示它们
+    if (message.reactions && message.reactions.length > 0) {
+        const reactionsDiv = document.createElement('div');
+        reactionsDiv.className = 'reactions';
+        reactionsDiv.textContent = message.reactions.join(' ');
+        bubble.appendChild(reactionsDiv);
+    }
+
+    // 如果有评论 (现在是一个数组)，就循环遍历并显示它们
+    if (message.comments && message.comments.length > 0) {
+    message.comments.forEach(comment => {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-display';
+        commentDiv.innerHTML = `${comment.text}<span class="comment-timestamp">${comment.timestamp}</span>`;
+        bubble.appendChild(commentDiv);
+    });
+}
+    
+    // --- 核心交互：长按打开菜单 ---
+    let pressTimer;
+    // 手机端长按
+    bubble.addEventListener('touchstart', () => {
+        pressTimer = setTimeout(() => {
+            activeMessageIndex = index; // 记录我们正在操作哪条消息
+            messageMenu.classList.add('visible');
+        }, 800); // 长按800毫秒触发
+    });
+    bubble.addEventListener('touchend', () => {
+        clearTimeout(pressTimer); // 如果只是短按，就取消定时器
+    });
+    // 电脑端用右键模拟
+    bubble.addEventListener('contextmenu', (e) => {
+        e.preventDefault(); // 阻止浏览器默认的右键菜单
+        activeMessageIndex = index;
+        messageMenu.classList.add('visible');
+    });
+
+    chatMessagesContainer.appendChild(bubble);
     }
 
     // 函数：添加日期分隔符
@@ -303,13 +349,13 @@ if (chatMessagesContainer) {
             localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
         }
         
-        chatHistory.forEach(message => {
+        chatHistory.forEach((message, index) => {
             // 如果这条消息的日期和上一条不同，就加一个日期分隔符
             if (message.date !== lastDate) {
                 addDateSeparator(message.date);
                 lastDate = message.date;
             }
-            addMessageToScreen(message);
+            addMessageToScreen(message, index);
         });
 
         // 滚动到底部
@@ -335,10 +381,67 @@ function sendMessage() {
     
     loadChat();
     
+    
     chatInput.value = '';
     
     // 我们不再在这里调用 focus()
 }
+// 1. 发送按钮的事件
+sendButton.addEventListener('mousedown', function(event) { event.preventDefault(); });
+sendButton.addEventListener('click', sendMessage);
+
+// 2. 输入框回车的事件
+chatInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') { event.preventDefault(); sendMessage(); }
+});
+
+// 3. 菜单选项的事件
+// 用这个新版本替换旧的 messageMenu.addEventListener
+messageMenu.addEventListener('click', (event) => {
+    // 1. 首先检查被点击的是不是我们想要的目标
+    const target = event.target;
+    const action = target.dataset.action;
+
+    // 2. 如果点击的不是那三个带 data-action 的按钮，就什么都不做，直接返回
+    if (!action) {
+        return; 
+    }
+
+    // --- 下面的逻辑只有在点击了 ♥, ❓, ❌ 时才会执行 ---
+    if (activeMessageIndex === null) return;
+    
+    const message = chatHistory[activeMessageIndex];
+    if (!message.reactions) message.reactions = [];
+
+    if (action === 'like' && !message.reactions.includes('❤️')) message.reactions.push('❤️');
+    if (action === 'challenge' && !message.reactions.includes('❓')) message.reactions.push('❓');
+    if (action === 'delete') {
+        chatHistory.splice(activeMessageIndex, 1);
+    }
+
+    localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+    loadChat();
+    
+    // 3. 执行完操作后，才关闭菜单
+    messageMenu.classList.remove('visible');
+    activeMessageIndex = null;
+});
+
+// 4. 评论提交按钮的事件
+commentSubmitBtn.addEventListener('click', () => {
+    const text = commentInput.value.trim();
+    if (text === '' || activeMessageIndex === null) return;
+    const message = chatHistory[activeMessageIndex]; 
+    message.comment = { text: text, timestamp: new Date().toLocaleString() };
+    localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+    loadChat();
+    messageMenu.classList.remove('visible');
+    commentInput.value = '';
+    activeMessageIndex = null;
+});
+
+// --- 初始化：在所有事件都绑定好之后，再执行 ---
+loadChat();
 
 // --- 核心改动：使用 mousedown 事件来防止失焦 ---
 sendButton.addEventListener('mousedown', function(event) {
@@ -361,6 +464,7 @@ chatInput.addEventListener('keypress', function(event) {
 });
     // --- 初始化 ---
     loadChat();
+    
 }
 
     // --- Page 5 Logic: Task List Management (The complete, correct version) ---
