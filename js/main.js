@@ -252,8 +252,7 @@ chatLink.addEventListener('click', () => {
 // 初始化
 updateTentVisuals();
 }
-    
-// --- Page 4 Logic: New Chat UI (Final, WeChat-style Timestamp v3) ---
+// --- Page 4 Logic: New Chat UI (Final, Final, Final Logic v3) ---
 const chatMessagesContainer = document.getElementById('chat-messages-p4');
 if (chatMessagesContainer) {
     if (localStorage.getItem('isFireLit') === 'true') { const fireLoopSound = document.getElementById('fire-loop-sound'); if (fireLoopSound) { fireLoopSound.volume = 0.3; fireLoopSound.play(); } }
@@ -361,8 +360,7 @@ if (chatMessagesContainer) {
     });
 
     initializeChat();
-    // --- 新增：为 Page 4 的返回按钮绑定智能返回逻辑 ---
-const p4BackArrow = document.querySelector('.chat-header-p4 a[href="page3.html"]');
+    const p4BackArrow = document.querySelector('.chat-header-p4 a[href="page3.html"]');
 if (p4BackArrow) {
     p4BackArrow.addEventListener('click', function(event) {
         // 1. 阻止它默认跳转到 page3.html
@@ -372,7 +370,7 @@ if (p4BackArrow) {
         window.history.back();
     });
 }
-}
+}    
 
     // --- Page 5 Logic: Task List Management (The complete, correct version) ---
     // --- Page 5 Logic: Task List Management ---
