@@ -261,9 +261,11 @@ if (chatMessagesContainer) {
     let activeMessageIndex = null;
     let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
 
-    function addMessageToScreen(message, index) {
+    function addMessageToScreen(message, index, wrapper) {
         const bubble = document.createElement('div');
         bubble.className = `message-bubble-p4 ${message.type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
+        
+        // --- 内部逻辑和你原来的一样，无需改动 ---
         if (message.text.includes('<img')) { bubble.innerHTML = message.text; } else { bubble.textContent = message.text; }
         if (message.reactions && message.reactions.length > 0) { const reactionsDiv = document.createElement('div'); reactionsDiv.className = 'reactions'; reactionsDiv.textContent = message.reactions.join(' '); bubble.appendChild(reactionsDiv); }
         if (message.comments && message.comments.length > 0) { message.comments.forEach(comment => { const commentDiv = document.createElement('div'); commentDiv.className = 'comment-display'; commentDiv.innerHTML = `${comment.text}<span class="comment-timestamp">${comment.timestamp}</span>`; bubble.appendChild(commentDiv); }); }
@@ -272,7 +274,12 @@ if (chatMessagesContainer) {
         bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
         bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
         bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); activeMessageIndex = index; messageMenu.classList.add('visible'); });
-        chatMessagesContainer.appendChild(bubble);
+        
+        // --- 关键改动 ---
+        // 之前是把bubble直接加到聊天容器
+        // 现在是把bubble加到传进来的wrapper里，再把wrapper加到聊天容器
+        wrapper.appendChild(bubble);
+        chatMessagesContainer.appendChild(wrapper);
     }
     
     function renderChat(shouldScrollToBottom = true) {
@@ -282,38 +289,33 @@ if (chatMessagesContainer) {
         const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
 
         chatHistory.forEach((message, index) => {
-            const currentMessageTimestamp = message.timestamp || 0;
+            // --- 关键改动：为每一条消息创建一个独立的“包裹”div ---
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message-wrapper';
 
-            // 只有当消息存在有效时间戳时，我们才进行判断
+            const currentMessageTimestamp = message.timestamp || 0;
             if (currentMessageTimestamp > 0) {
                 const currentDate = new Date(currentMessageTimestamp);
                 const lastDate = new Date(lastMessageTimestamp);
-
-                // 条件1：是不是新的一天 (包括第一条消息)
                 const isNewDay = lastMessageTimestamp === 0 || currentDate.toDateString() !== lastDate.toDateString();
-                // 条件2：如果不是新的一天，时间间隔是否大于10分钟
                 const isTimeGap = !isNewDay && (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS);
 
-                // 如果是新的一天 或 时间间隔足够长，就显示时间戳
                 if (isNewDay || isTimeGap) {
                     const timestampSeparator = document.createElement('div');
-                    timestampSeparator.className = 'date-separator'; // 复用你之前的样式
-
+                    timestampSeparator.className = 'date-separator';
                     if (isNewDay) {
-                        // 新的一天，显示完整的日期和时间
                         timestampSeparator.textContent = `${message.date} ${message.time}`;
-                    } else { // 否则，说明只是时间间隔较长
-                        // 在同一天，只显示时间
+                    } else {
                         timestampSeparator.textContent = message.time;
                     }
-                    chatMessagesContainer.appendChild(timestampSeparator);
+                    // 把时间戳加到“包裹”里，而不是主容器里
+                    wrapper.appendChild(timestampSeparator);
                 }
             }
 
-            // 无论如何，都把消息气泡添加到屏幕上
-            addMessageToScreen(message, index);
+            // 把“包裹”传给addMessageToScreen函数，让它把消息气泡也放进来
+            addMessageToScreen(message, index, wrapper);
 
-            // 更新上一条消息的时间戳，用于下一次循环的比较
             if (currentMessageTimestamp > 0) {
                 lastMessageTimestamp = currentMessageTimestamp;
             }
