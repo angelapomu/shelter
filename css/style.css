@@ -298,12 +298,20 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
     padding: 15px;
 }
 
-.date-separator {
+/* 将这段CSS代码添加到你的项目中 */
+  .date-separator {
+    /* 关键修复：确保时间戳在文档流中正常排列，而不是浮动到顶部 */
+    position: static; 
+    
+    /* 实现微信那样的居中效果 */
+    width: 100%;
     text-align: center;
-    color: #888;
-    font-size: 14px;
-    margin: 10px 0;
-}
+    margin: 10px 0; /* 给时间戳上下增加一点间距，更好看 */
+
+    /* 美化样式（可选） */
+    font-size: 14px; /* 字体小一点 */
+    color: #999; /* 灰色字体 */
+  }
 
 .message-bubble-p4 {
     max-width: 75%;

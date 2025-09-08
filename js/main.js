@@ -278,29 +278,45 @@ if (chatMessagesContainer) {
     function renderChat(shouldScrollToBottom = true) {
         const lastScrollTop = chatMessagesContainer.scrollTop;
         chatMessagesContainer.innerHTML = '';
-        let lastDate = null;
         let lastMessageTimestamp = 0;
         const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
 
         chatHistory.forEach((message, index) => {
-            if (message.date && message.date !== lastDate) {
-                const dateSeparator = document.createElement('div');
-                dateSeparator.className = 'date-separator';
-                dateSeparator.textContent = message.date;
-                chatMessagesContainer.appendChild(dateSeparator);
-            }
             const currentMessageTimestamp = message.timestamp || 0;
-            if (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS) {
-                if (message.time) {
-                    const timeSeparator = document.createElement('div');
-                    timeSeparator.className = 'date-separator';
-                    timeSeparator.textContent = message.time;
-                    chatMessagesContainer.appendChild(timeSeparator);
+
+            // 只有当消息存在有效时间戳时，我们才进行判断
+            if (currentMessageTimestamp > 0) {
+                const currentDate = new Date(currentMessageTimestamp);
+                const lastDate = new Date(lastMessageTimestamp);
+
+                // 条件1：是不是新的一天 (包括第一条消息)
+                const isNewDay = lastMessageTimestamp === 0 || currentDate.toDateString() !== lastDate.toDateString();
+                // 条件2：如果不是新的一天，时间间隔是否大于10分钟
+                const isTimeGap = !isNewDay && (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS);
+
+                // 如果是新的一天 或 时间间隔足够长，就显示时间戳
+                if (isNewDay || isTimeGap) {
+                    const timestampSeparator = document.createElement('div');
+                    timestampSeparator.className = 'date-separator'; // 复用你之前的样式
+
+                    if (isNewDay) {
+                        // 新的一天，显示完整的日期和时间
+                        timestampSeparator.textContent = `${message.date} ${message.time}`;
+                    } else { // 否则，说明只是时间间隔较长
+                        // 在同一天，只显示时间
+                        timestampSeparator.textContent = message.time;
+                    }
+                    chatMessagesContainer.appendChild(timestampSeparator);
                 }
             }
+
+            // 无论如何，都把消息气泡添加到屏幕上
             addMessageToScreen(message, index);
-            lastMessageTimestamp = currentMessageTimestamp;
-            lastDate = message.date;
+
+            // 更新上一条消息的时间戳，用于下一次循环的比较
+            if (currentMessageTimestamp > 0) {
+                lastMessageTimestamp = currentMessageTimestamp;
+            }
         });
 
         if (shouldScrollToBottom) {
