@@ -325,7 +325,7 @@ if (chatMessagesContainer) {
     function initializeChat() {
         if (chatHistory.length === 0) {
             const now = new Date();
-            const welcomeMessage = { type: 'other', text: '你好！这里是你的私人帐蓬，你可以说任何你想说的话，这里没有ai评判你。你可以自己和自己说的话互动，手机长按气泡（电脑端的话右键）可以出现一个菜单，你可以喜欢自己发的话，也可以质疑这句话是否夸大了困难，也可以觉得它很好玩。你还可以累计评论你之前说的话！然后在一天结束的时候复盘自己的精力损耗，来更好理解自己，更好调节心态。所有信息都本地存储！have fun!', date: now.toLocaleDateString(), time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`, timestamp: now.getTime() };
+            const welcomeMessage = { type: 'other', text: '你好！这里是你的私人帐蓬，你可以说任何你想说的话，这里没有ai评判你。你可以自己和自己说的话互动（也可以手动打字加时间戳），手机长按气泡（电脑端的话右键）可以出现一个菜单，你可以喜欢自己发的话，也可以质疑这句话是否夸大了困难，也可以觉得它很好玩。你还可以累计评论你之前说的话！然后在一天结束的时候复盘自己的精力损耗，来更好理解自己，更好调节心态。所有信息都本地存储！have fun!', date: now.toLocaleDateString(), time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`, timestamp: now.getTime() };
             chatHistory.push(welcomeMessage);
             localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
         }
