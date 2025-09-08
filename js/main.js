@@ -253,31 +253,68 @@ chatLink.addEventListener('click', () => {
 updateTentVisuals();
 }
     
-    // --- Page 4 Logic: New Chat UI ---
+// --- Page 4 Logic: New Chat UI (Final, Guaranteed Working Version v3) ---
+if (localStorage.getItem('isFireLit') === 'true') {
+    const fireLoopSound = document.getElementById('fire-loop-sound');
+    if (fireLoopSound) { 
+        fireLoopSound.volume = 0.3; 
+        fireLoopSound.play(); 
+    }
+}
 const chatMessagesContainer = document.getElementById('chat-messages-p4');
 if (chatMessagesContainer) {
-    // --- 声音持续 ---
-    if (localStorage.getItem('isFireLit') === 'true') {
-        const fireLoopSound = document.getElementById('fire-loop-sound');
-        if (fireLoopSound) { fireLoopSound.volume = 0.3; fireLoopSound.play(); }
+    // --- 元素获取 & 全局变量 ---
+    const chatInput = document.getElementById('chat-input-p4'), sendButton = document.getElementById('send-button-p4');
+    const messageMenu = document.getElementById('message-menu'), commentInput = document.getElementById('comment-input'), commentSubmitBtn = document.getElementById('comment-submit-btn');
+    let activeMessageIndex = null;
+    let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
+
+    // --- 渲染函数 ---
+    function renderChat(shouldScrollToBottom = true) {
+        const lastScrollTop = chatMessagesContainer.scrollTop;
+        chatMessagesContainer.innerHTML = '';
+        let lastMessageTimestamp = 0;
+        let lastDate = null;
+        const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
+
+        chatHistory.forEach((message, index) => {
+            // 1. 日期分隔符 (每天只显示一次)
+            if (message.date && message.date !== lastDate) {
+                const dateSeparator = document.createElement('div');
+                dateSeparator.className = 'date-separator';
+                dateSeparator.textContent = message.date;
+                chatMessagesContainer.appendChild(dateSeparator);
+            }
+            
+            // 2. 时间戳 (间隔超过10分钟显示)
+            const currentMessageTimestamp = message.timestamp || 0;
+            if (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS) {
+                if (message.time) {
+                    const timeSeparator = document.createElement('div');
+                    timeSeparator.className = 'date-separator';
+                    timeSeparator.textContent = message.time;
+                    chatMessagesContainer.appendChild(timeSeparator);
+                }
+            }
+
+            // 3. 渲染消息气泡本身
+            addMessageToScreen(message, index);
+            
+            lastMessageTimestamp = currentMessageTimestamp;
+            lastDate = message.date;
+        });
+
+        if (shouldScrollToBottom) {
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        } else {
+            chatMessagesContainer.scrollTop = lastScrollTop;
+        }
     }
 
-    // --- 获取元素 ---
-    const messageMenu = document.getElementById('message-menu');
-    const commentInput = document.getElementById('comment-input');
-    const commentSubmitBtn = document.getElementById('comment-submit-btn');
-    const chatInput = document.getElementById('chat-input-p4'), sendButton = document.getElementById('send-button-p4');
-
-    // --- 数据管理 ---
-    let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
-    let activeMessageIndex = null;
-
-    // --- 核心函数 ---
     function addMessageToScreen(message, index) {
         const bubble = document.createElement('div');
         bubble.className = `message-bubble-p4 ${message.type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
-        if (message.type === 'other' && message.text.includes('<img')) { bubble.innerHTML = message.text; } 
-        else { bubble.textContent = message.text; }
+        if (message.text.includes('<img')) { bubble.innerHTML = message.text; } else { bubble.textContent = message.text; }
         if (message.reactions && message.reactions.length > 0) { const reactionsDiv = document.createElement('div'); reactionsDiv.className = 'reactions'; reactionsDiv.textContent = message.reactions.join(' '); bubble.appendChild(reactionsDiv); }
         if (message.comments && message.comments.length > 0) { message.comments.forEach(comment => { const commentDiv = document.createElement('div'); commentDiv.className = 'comment-display'; commentDiv.innerHTML = `${comment.text}<span class="comment-timestamp">${comment.timestamp}</span>`; bubble.appendChild(commentDiv); }); }
         let pressTimer;
@@ -287,33 +324,50 @@ if (chatMessagesContainer) {
         bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); activeMessageIndex = index; messageMenu.classList.add('visible'); });
         chatMessagesContainer.appendChild(bubble);
     }
-    function addDateSeparator(dateString) { const separator = document.createElement('div'); separator.className = 'date-separator'; separator.textContent = dateString; chatMessagesContainer.appendChild(separator); }
-    function loadChat() {
-        chatMessagesContainer.innerHTML = ''; let lastDate = null;
-        const today = new Date().toLocaleDateString();
-        const foodNoticeSentDate = localStorage.getItem('foodNoticeSentDate'), todayFoodData = localStorage.getItem('todayFood');
-        if (foodNoticeSentDate !== today && todayFoodData) { const food = JSON.parse(todayFoodData); const foodEmojiImg = `<img src="${food.src}" alt="${food.name}" style="width: 4.8rem; height: 4.8rem;">`; const foodMessage = { type: 'other', text: foodEmojiImg, date: today }; chatHistory.push(foodMessage); localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory)); localStorage.setItem('foodNoticeSentDate', today); }
-        if (!localStorage.getItem('chatHistoryP4')) { const welcomeMessage = { type: 'other', text: '你好！我是你的私人帐篷...', date: today }; chatHistory.unshift(welcomeMessage); localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory)); }
-        chatHistory.forEach((message, index) => { if (message.date !== lastDate) { addDateSeparator(message.date); lastDate = message.date; } addMessageToScreen(message, index); });
-        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    
+    // --- 交互函数 ---
+    function sendMessage() {
+        _hmt.push(['_trackEvent', 'p4_chat', 'click', 'send_message']);
+        const text = chatInput.value.trim();
+        if (text === '') return;
+        const now = new Date();
+        const newMessage = { type: 'my', text: text, date: now.toLocaleDateString(), time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`, timestamp: now.getTime() };
+        chatHistory.push(newMessage);
+        localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+        renderChat(true);
+        chatInput.value = '';
     }
-    function sendMessage() { _hmt.push(['_trackEvent', 'p4_chat', 'click', 'send_message']); const text = chatInput.value.trim(); if (text === '') return; const newMessage = { type: 'my', text: text, date: new Date().toLocaleDateString() }; chatHistory.push(newMessage); localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory)); loadChat(); chatInput.value = ''; }
 
+    // --- 初始化函数 ---
+    function initializeChat() {
+        if (chatHistory.length === 0) {
+            const now = new Date();
+            const welcomeMessage = { type: 'other', text: '你好！这里是你的私人帐蓬，你可以说任何你想说的话，这里没有ai评判你。你可以自己和自己说的话互动，手机长按气泡（电脑端的话右键）可以出现一个菜单，你可以喜欢自己发的话，也可以质疑这句话是否夸大了困难，也可以觉得它很好玩。你还可以累计评论你之前说的话！然后在一天结束的时候复盘自己的精力损耗，来更好理解自己，更好调节心态。所有信息都本地存储！have fun!', date: now.toLocaleDateString(), time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`, timestamp: now.getTime() };
+            chatHistory.push(welcomeMessage);
+            localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
+        }
+        renderChat(true);
+    }
+    
     // --- 事件监听 ---
     sendButton.addEventListener('mousedown', (e) => e.preventDefault());
     sendButton.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
+    
     messageMenu.addEventListener('click', (event) => {
         const target = event.target; const action = target.dataset.action;
-        if (!action) return; if (activeMessageIndex === null) return;
+        if (!action || activeMessageIndex === null) return;
         const message = chatHistory[activeMessageIndex];
         if (!message.reactions) message.reactions = [];
         if (action === 'like' && !message.reactions.includes('❤️')) message.reactions.push('❤️');
         if (action === 'challenge' && !message.reactions.includes('❓')) message.reactions.push('❓');
+        if (action === 'laugh' && !message.reactions.includes('😂')) message.reactions.push('😂'); // 新增
         if (action === 'delete') { chatHistory.splice(activeMessageIndex, 1); }
         localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
-        loadChat(); messageMenu.classList.remove('visible'); activeMessageIndex = null;
+        renderChat(false); // 重绘，不滚动
+        messageMenu.classList.remove('visible'); activeMessageIndex = null;
     });
+    
     commentSubmitBtn.addEventListener('click', () => {
         const text = commentInput.value.trim();
         if (text === '' || activeMessageIndex === null) return;
@@ -321,11 +375,12 @@ if (chatMessagesContainer) {
         if (!message.comments) message.comments = [];
         message.comments.push({ text: text, timestamp: new Date().toLocaleString() });
         localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
-        loadChat(); messageMenu.classList.remove('visible'); commentInput.value = ''; activeMessageIndex = null;
+        renderChat(false); // 重绘，不滚动
+        messageMenu.classList.remove('visible'); commentInput.value = ''; activeMessageIndex = null;
     });
 
-    // --- 初始化 ---
-    loadChat();
+    // --- 最终的初始化调用 ---
+    initializeChat();
 }
 
     // --- Page 5 Logic: Task List Management (The complete, correct version) ---
