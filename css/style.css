@@ -553,4 +553,15 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
     margin-left: 10px;
     font-size: 12px;
     color: #aaa;
+}/* --- 新增：全局右上角图标样式 --- */
+.top-right-icon {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    z-index: 100;
+}
+.top-right-icon img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
 }

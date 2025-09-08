@@ -253,63 +253,14 @@ chatLink.addEventListener('click', () => {
 updateTentVisuals();
 }
     
-// --- Page 4 Logic: New Chat UI (Final, Guaranteed Working Version v3) ---
-if (localStorage.getItem('isFireLit') === 'true') {
-    const fireLoopSound = document.getElementById('fire-loop-sound');
-    if (fireLoopSound) { 
-        fireLoopSound.volume = 0.3; 
-        fireLoopSound.play(); 
-    }
-}
+// --- Page 4 Logic: New Chat UI (Final, WeChat-style Timestamp v3) ---
 const chatMessagesContainer = document.getElementById('chat-messages-p4');
 if (chatMessagesContainer) {
-    // --- 元素获取 & 全局变量 ---
+    if (localStorage.getItem('isFireLit') === 'true') { const fireLoopSound = document.getElementById('fire-loop-sound'); if (fireLoopSound) { fireLoopSound.volume = 0.3; fireLoopSound.play(); } }
     const chatInput = document.getElementById('chat-input-p4'), sendButton = document.getElementById('send-button-p4');
     const messageMenu = document.getElementById('message-menu'), commentInput = document.getElementById('comment-input'), commentSubmitBtn = document.getElementById('comment-submit-btn');
     let activeMessageIndex = null;
     let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
-
-    // --- 渲染函数 ---
-    function renderChat(shouldScrollToBottom = true) {
-        const lastScrollTop = chatMessagesContainer.scrollTop;
-        chatMessagesContainer.innerHTML = '';
-        let lastMessageTimestamp = 0;
-        let lastDate = null;
-        const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
-
-        chatHistory.forEach((message, index) => {
-            // 1. 日期分隔符 (每天只显示一次)
-            if (message.date && message.date !== lastDate) {
-                const dateSeparator = document.createElement('div');
-                dateSeparator.className = 'date-separator';
-                dateSeparator.textContent = message.date;
-                chatMessagesContainer.appendChild(dateSeparator);
-            }
-            
-            // 2. 时间戳 (间隔超过10分钟显示)
-            const currentMessageTimestamp = message.timestamp || 0;
-            if (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS) {
-                if (message.time) {
-                    const timeSeparator = document.createElement('div');
-                    timeSeparator.className = 'date-separator';
-                    timeSeparator.textContent = message.time;
-                    chatMessagesContainer.appendChild(timeSeparator);
-                }
-            }
-
-            // 3. 渲染消息气泡本身
-            addMessageToScreen(message, index);
-            
-            lastMessageTimestamp = currentMessageTimestamp;
-            lastDate = message.date;
-        });
-
-        if (shouldScrollToBottom) {
-            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-        } else {
-            chatMessagesContainer.scrollTop = lastScrollTop;
-        }
-    }
 
     function addMessageToScreen(message, index) {
         const bubble = document.createElement('div');
@@ -325,7 +276,41 @@ if (chatMessagesContainer) {
         chatMessagesContainer.appendChild(bubble);
     }
     
-    // --- 交互函数 ---
+    function renderChat(shouldScrollToBottom = true) {
+        const lastScrollTop = chatMessagesContainer.scrollTop;
+        chatMessagesContainer.innerHTML = '';
+        let lastDate = null;
+        let lastMessageTimestamp = 0;
+        const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
+
+        chatHistory.forEach((message, index) => {
+            if (message.date && message.date !== lastDate) {
+                const dateSeparator = document.createElement('div');
+                dateSeparator.className = 'date-separator';
+                dateSeparator.textContent = message.date;
+                chatMessagesContainer.appendChild(dateSeparator);
+            }
+            const currentMessageTimestamp = message.timestamp || 0;
+            if (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS) {
+                if (message.time) {
+                    const timeSeparator = document.createElement('div');
+                    timeSeparator.className = 'date-separator';
+                    timeSeparator.textContent = message.time;
+                    chatMessagesContainer.appendChild(timeSeparator);
+                }
+            }
+            addMessageToScreen(message, index);
+            lastMessageTimestamp = currentMessageTimestamp;
+            lastDate = message.date;
+        });
+
+        if (shouldScrollToBottom) {
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        } else {
+            chatMessagesContainer.scrollTop = lastScrollTop;
+        }
+    }
+
     function sendMessage() {
         _hmt.push(['_trackEvent', 'p4_chat', 'click', 'send_message']);
         const text = chatInput.value.trim();
@@ -338,7 +323,6 @@ if (chatMessagesContainer) {
         chatInput.value = '';
     }
 
-    // --- 初始化函数 ---
     function initializeChat() {
         if (chatHistory.length === 0) {
             const now = new Date();
@@ -348,12 +332,10 @@ if (chatMessagesContainer) {
         }
         renderChat(true);
     }
-    
-    // --- 事件监听 ---
+
     sendButton.addEventListener('mousedown', (e) => e.preventDefault());
     sendButton.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
-    
     messageMenu.addEventListener('click', (event) => {
         const target = event.target; const action = target.dataset.action;
         if (!action || activeMessageIndex === null) return;
@@ -361,13 +343,12 @@ if (chatMessagesContainer) {
         if (!message.reactions) message.reactions = [];
         if (action === 'like' && !message.reactions.includes('❤️')) message.reactions.push('❤️');
         if (action === 'challenge' && !message.reactions.includes('❓')) message.reactions.push('❓');
-        if (action === 'laugh' && !message.reactions.includes('😂')) message.reactions.push('😂'); // 新增
+        if (action === 'laugh' && !message.reactions.includes('😂')) message.reactions.push('😂');
         if (action === 'delete') { chatHistory.splice(activeMessageIndex, 1); }
         localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
-        renderChat(false); // 重绘，不滚动
+        renderChat(false);
         messageMenu.classList.remove('visible'); activeMessageIndex = null;
     });
-    
     commentSubmitBtn.addEventListener('click', () => {
         const text = commentInput.value.trim();
         if (text === '' || activeMessageIndex === null) return;
@@ -375,12 +356,22 @@ if (chatMessagesContainer) {
         if (!message.comments) message.comments = [];
         message.comments.push({ text: text, timestamp: new Date().toLocaleString() });
         localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
-        renderChat(false); // 重绘，不滚动
+        renderChat(false);
         messageMenu.classList.remove('visible'); commentInput.value = ''; activeMessageIndex = null;
     });
 
-    // --- 最终的初始化调用 ---
     initializeChat();
+    // --- 新增：为 Page 4 的返回按钮绑定智能返回逻辑 ---
+const p4BackArrow = document.querySelector('.chat-header-p4 a[href="page3.html"]');
+if (p4BackArrow) {
+    p4BackArrow.addEventListener('click', function(event) {
+        // 1. 阻止它默认跳转到 page3.html
+        event.preventDefault();
+        
+        // 2. 命令浏览器历史记录后退一步
+        window.history.back();
+    });
+}
 }
 
     // --- Page 5 Logic: Task List Management (The complete, correct version) ---
