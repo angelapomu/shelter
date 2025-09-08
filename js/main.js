@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const goToTentBtn = document.getElementById('go-to-tent-btn');
         const procrastinationInput = document.getElementById('procrastination-input');
         const thoughtsInput = document.getElementById('thoughts-input');
+        // --- 新增：获取“清空”按钮 ---
+        const clearP1Btn = document.getElementById('clear-p1-btn');
         function savePage1Inputs() { localStorage.setItem('procrastinationText', procrastinationInput.value); localStorage.setItem('thoughtsText', thoughtsInput.value); }
         function loadPage1Inputs() { procrastinationInput.value = localStorage.getItem('procrastinationText') || ''; thoughtsInput.value = localStorage.getItem('thoughtsText') || ''; }
         const plusIconLink = document.querySelector('.plus-icon');
@@ -13,6 +15,21 @@ document.addEventListener('DOMContentLoaded', function() {
         goToStepBtn.addEventListener('click', () => { savePage1Inputs(); window.location.href = 'page5.html'; });
         goToTentBtn.addEventListener('click', () => { savePage1Inputs(); localStorage.setItem('isFireLit', 'false'); localStorage.setItem('isChairPlaced', 'false'); window.location.href = 'page2.html'; });
         loadPage1Inputs();
+        // --- 新增：为“清空”按钮绑定点击事件 ---
+if (clearP1Btn) {
+    clearP1Btn.addEventListener('click', function(event) {
+        // 1. 阻止链接的默认跳转行为
+        event.preventDefault();
+        
+        // 2. 清空两个输入框的文本
+        procrastinationInput.value = '';
+        thoughtsInput.value = '';
+        
+        // 3. 从localStorage中也删除记录，确保清空是永久的
+        localStorage.removeItem('procrastinationText');
+        localStorage.removeItem('thoughtsText');
+    });
+}
     }
 
     // --- Page 2 Logic: Sequential Text Reveal ---
