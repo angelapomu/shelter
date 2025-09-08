@@ -261,11 +261,9 @@ if (chatMessagesContainer) {
     let activeMessageIndex = null;
     let chatHistory = JSON.parse(localStorage.getItem('chatHistoryP4')) || [];
 
-    function addMessageToScreen(message, index, wrapper) {
+    function addMessageToScreen(message, index) {
         const bubble = document.createElement('div');
         bubble.className = `message-bubble-p4 ${message.type === 'my' ? 'my-message-p4' : 'other-message-p4'}`;
-        
-        // --- 内部逻辑和你原来的一样，无需改动 ---
         if (message.text.includes('<img')) { bubble.innerHTML = message.text; } else { bubble.textContent = message.text; }
         if (message.reactions && message.reactions.length > 0) { const reactionsDiv = document.createElement('div'); reactionsDiv.className = 'reactions'; reactionsDiv.textContent = message.reactions.join(' '); bubble.appendChild(reactionsDiv); }
         if (message.comments && message.comments.length > 0) { message.comments.forEach(comment => { const commentDiv = document.createElement('div'); commentDiv.className = 'comment-display'; commentDiv.innerHTML = `${comment.text}<span class="comment-timestamp">${comment.timestamp}</span>`; bubble.appendChild(commentDiv); }); }
@@ -274,51 +272,35 @@ if (chatMessagesContainer) {
         bubble.addEventListener('touchend', () => clearTimeout(pressTimer));
         bubble.addEventListener('touchmove', () => clearTimeout(pressTimer));
         bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); activeMessageIndex = index; messageMenu.classList.add('visible'); });
-        
-        // --- 关键改动 ---
-        // 之前是把bubble直接加到聊天容器
-        // 现在是把bubble加到传进来的wrapper里，再把wrapper加到聊天容器
-        wrapper.appendChild(bubble);
-        chatMessagesContainer.appendChild(wrapper);
+        chatMessagesContainer.appendChild(bubble);
     }
     
     function renderChat(shouldScrollToBottom = true) {
         const lastScrollTop = chatMessagesContainer.scrollTop;
         chatMessagesContainer.innerHTML = '';
+        let lastDate = null;
         let lastMessageTimestamp = 0;
         const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
 
         chatHistory.forEach((message, index) => {
-            // --- 关键改动：为每一条消息创建一个独立的“包裹”div ---
-            const wrapper = document.createElement('div');
-            wrapper.className = 'message-wrapper';
-
+            if (message.date && message.date !== lastDate) {
+                const dateSeparator = document.createElement('div');
+                dateSeparator.className = 'date-separator';
+                dateSeparator.textContent = message.date;
+                chatMessagesContainer.appendChild(dateSeparator);
+            }
             const currentMessageTimestamp = message.timestamp || 0;
-            if (currentMessageTimestamp > 0) {
-                const currentDate = new Date(currentMessageTimestamp);
-                const lastDate = new Date(lastMessageTimestamp);
-                const isNewDay = lastMessageTimestamp === 0 || currentDate.toDateString() !== lastDate.toDateString();
-                const isTimeGap = !isNewDay && (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS);
-
-                if (isNewDay || isTimeGap) {
-                    const timestampSeparator = document.createElement('div');
-                    timestampSeparator.className = 'date-separator';
-                    if (isNewDay) {
-                        timestampSeparator.textContent = `${message.date} ${message.time}`;
-                    } else {
-                        timestampSeparator.textContent = message.time;
-                    }
-                    // 把时间戳加到“包裹”里，而不是主容器里
-                    wrapper.appendChild(timestampSeparator);
+            if (currentMessageTimestamp - lastMessageTimestamp > TEN_MINUTES_IN_MS) {
+                if (message.time) {
+                    const timeSeparator = document.createElement('div');
+                    timeSeparator.className = 'date-separator';
+                    timeSeparator.textContent = message.time;
+                    chatMessagesContainer.appendChild(timeSeparator);
                 }
             }
-
-            // 把“包裹”传给addMessageToScreen函数，让它把消息气泡也放进来
-            addMessageToScreen(message, index, wrapper);
-
-            if (currentMessageTimestamp > 0) {
-                lastMessageTimestamp = currentMessageTimestamp;
-            }
+            addMessageToScreen(message, index);
+            lastMessageTimestamp = currentMessageTimestamp;
+            lastDate = message.date;
         });
 
         if (shouldScrollToBottom) {
