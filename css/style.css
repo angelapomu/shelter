@@ -573,3 +573,14 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
     height: 40px;
     cursor: pointer;
 }
+
+/* --- 新增：修复 Page 1 键盘弹出 Bug 的样式 --- */
+.app-container.keyboard-visible .content-wrapper.page1-content {
+    /* 
+     * 当键盘弹出时，我们不再强制垂直居中，
+     * 而是让内容从顶部开始对齐。
+     * 这会防止布局被压缩。
+    */
+    justify-content: flex-start;
+    padding-top: 50px; /* 给顶部留一点空间，防止输入框紧贴顶部 */
+}

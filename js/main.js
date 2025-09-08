@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
 
     // --- Page 1 Logic: Navigation & Data Persistence ---
@@ -16,6 +17,36 @@ document.addEventListener('DOMContentLoaded', function() {
         goToTentBtn.addEventListener('click', () => { savePage1Inputs(); localStorage.setItem('isFireLit', 'false'); localStorage.setItem('isChairPlaced', 'false'); window.location.href = 'page2.html'; });
         loadPage1Inputs();
         // --- 新增：为“清空”按钮绑定点击事件 ---
+        loadPage1Inputs();
+
+// --- 新增：专门为 Page 1 修复键盘弹出问题的逻辑 ---
+(function() {
+    // 获取 Page 1 的两个输入框
+    const procrastinationInput = document.getElementById('procrastination-input');
+    const thoughtsInput = document.getElementById('thoughts-input');
+    const appContainer = document.querySelector('.app-container');
+
+    // 如果找不到输入框，就什么也不做
+    if (!procrastinationInput || !thoughtsInput || !appContainer) return;
+
+    // 定义一个函数，在输入框获得焦点时调用
+    const onFocus = () => {
+        // 当键盘即将弹出时，给 app-container 加上一个特殊的 class
+        appContainer.classList.add('keyboard-visible');
+    };
+
+    // 定义一个函数，在输入框失去焦点时调用
+    const onBlur = () => {
+        // 当键盘收起时，移除那个 class
+        appContainer.classList.remove('keyboard-visible');
+    };
+
+    // 为两个输入框绑定事件
+    procrastinationInput.addEventListener('focus', onFocus);
+    procrastinationInput.addEventListener('blur', onBlur);
+    thoughtsInput.addEventListener('focus', onFocus);
+    thoughtsInput.addEventListener('blur', onBlur);
+})();
 if (clearP1Btn) {
     clearP1Btn.addEventListener('click', function(event) {
         // 1. 阻止链接的默认跳转行为
