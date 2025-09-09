@@ -390,6 +390,8 @@ if (chatMessagesContainer) {
         if (!message.reactions) message.reactions = [];
         if (action === 'like' && !message.reactions.includes('❤️')) message.reactions.push('❤️');
         if (action === 'challenge' && !message.reactions.includes('❓')) message.reactions.push('❓');
+        if (action === 'done' && !message.reactions.includes('✅')) message.reactions.push('✅');
+        if (action === 'idea' && !message.reactions.includes('💡')) message.reactions.push('💡');
         if (action === 'laugh' && !message.reactions.includes('😂')) message.reactions.push('😂');
         if (action === 'delete') { chatHistory.splice(activeMessageIndex, 1); }
         localStorage.setItem('chatHistoryP4', JSON.stringify(chatHistory));
